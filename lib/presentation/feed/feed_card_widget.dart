@@ -1,4 +1,5 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/constants/app_images.dart';
 import 'package:beez/models/event_model.dart';
 import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
@@ -71,7 +72,11 @@ class FeedCard extends StatelessWidget {
                   children: [
                     ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image(image: NetworkImage(data.photos[0]))),
+                        child: Image(
+                            image: data.photos.isEmpty
+                                ? AssetImage(AppImages.placeholder)
+                                    as ImageProvider
+                                : NetworkImage(data.photos[0]))),
                     const SizedBox(height: 10),
                     RichText(
                       text: TextSpan(

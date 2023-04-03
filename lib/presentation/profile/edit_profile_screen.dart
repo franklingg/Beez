@@ -37,12 +37,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final ImagePicker picker = ImagePicker();
   final _formKey = GlobalKey<FormState>();
   bool _visiblePassword = false;
+  bool processingForm = false;
   final TextEditingController _birthTextController = TextEditingController();
   CountryCode currentCountryCode = CountryCode.fromDialCode('+55');
   String? currentPassword;
   UserModel? currentUser;
   MultiImage? currentPhoto;
-  bool processingForm = false;
+  String? originalPhone;
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           : null;
       _birthTextController.text =
           DateFormat('dd/MM/yyyy').format(currentUser!.birthDate.toDate());
+      originalPhone = currentUser!.phone;
     });
   }
 
@@ -64,12 +66,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         processingForm = true;
       });
-
-      UserService.uploadUserPhoto(currentPhoto).then((photoUrl) {
+      _formKey.currentState!.save();
+      UserService.uploadUserPhoto(currentPhoto).then((photoUrl) async {
         setState(() {
           currentUser = currentUser!.copyWith(profilePic: photoUrl);
         });
-        return UserService.updateUser(currentUser!);
+
+        return UserService.updateUser(
+            currentUser!, currentPassword, currentUser!.phone != originalPhone);
       }).whenComplete(() {
         setState(() {
           processingForm = false;
@@ -115,15 +119,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 CircleAvatar(
-                                  backgroundImage: currentPhoto != null
-                                      ? currentPhoto!.source ==
-                                              MultiImageSource.NETWORK
-                                          ? NetworkImage(currentPhoto!.url!)
-                                          : Image.file(File(
-                                                  currentPhoto!.file!.path))
-                                              .image
-                                      : AssetImage(AppImages.placeholder),
-                                  radius: 55,
+                                  backgroundColor: AppColors.black,
+                                  radius: 56,
+                                  child: CircleAvatar(
+                                    backgroundImage: currentPhoto != null
+                                        ? currentPhoto!.source ==
+                                                MultiImageSource.NETWORK
+                                            ? NetworkImage(currentPhoto!.url!)
+                                            : Image.file(File(
+                                                    currentPhoto!.file!.path))
+                                                .image
+                                        : AssetImage(
+                                            AppImages.placeholderWhite),
+                                    radius: 55,
+                                  ),
                                 ),
                                 const SizedBox(width: 15),
                                 Column(
@@ -281,13 +290,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       child: TextFormField(
                                         initialValue:
                                             currentUser!.phone.substring(4),
-                                        onSaved: (value) => setState(() {
-                                          if (value != null) {
-                                            currentUser = currentUser!.copyWith(
-                                                phone:
-                                                    "${currentCountryCode.dialCode} $value");
-                                          }
-                                        }),
+                                        onSaved: (value) {
+                                          setState(() {
+                                            if (value != null) {
+                                              currentUser = currentUser!.copyWith(
+                                                  phone:
+                                                      "${currentCountryCode.dialCode} $value");
+                                            }
+                                          });
+                                        },
                                         autocorrect: false,
                                         inputFormatters: [
                                           MaskedInputFormatter(

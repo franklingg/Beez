@@ -197,13 +197,19 @@ class UserService {
     }
   }
 
-  static Future<UserModel> updateUser(UserModel updatedUser) async {
+  // TODO: phone changed action
+  static Future<UserModel> updateUser(
+      UserModel updatedUser, String? password, bool phoneChanged) async {
     try {
       final db = FirebaseFirestore.instance;
       await db
           .collection('users')
           .doc(updatedUser.id)
           .update(updatedUser.toMap());
+      await FirebaseAuth.instance.currentUser!.updateEmail(updatedUser.email);
+      if (password != null) {
+        await FirebaseAuth.instance.currentUser!.updatePassword(password);
+      }
       return updatedUser;
     } catch (e) {
       return Future.error(e);
