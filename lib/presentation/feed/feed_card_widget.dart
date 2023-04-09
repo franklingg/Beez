@@ -1,7 +1,6 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/event_model.dart';
 import 'package:beez/presentation/event/event_screen.dart';
-import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/profile_item_widget.dart';
 import 'package:beez/services/user_service.dart';
@@ -80,8 +79,9 @@ class FeedCard extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 // TODO: CURRENT USER LIKE
-                if (UserService.currentUser == null)
+                if (UserService.currentUser == null) {
                   AppAlerts.login(alertContext: context);
+                }
               },
               // TODO: Verify currentUser liked
               child: false
@@ -119,7 +119,7 @@ class FeedCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: const [
                         Icon(
-                          Icons.ios_share_outlined,
+                          Icons.share,
                           size: 20,
                           color: AppColors.black,
                         ),

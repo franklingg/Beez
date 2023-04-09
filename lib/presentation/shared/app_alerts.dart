@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/user_model.dart';
-import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:beez/presentation/shared/profile_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

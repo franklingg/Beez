@@ -8,15 +8,15 @@ import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
-import 'package:beez/services/event_service.dart';
+import 'package:beez/providers/event_provider.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/images_util.dart';
 import 'package:beez/utils/map_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
   static const name = "map";
@@ -31,8 +31,7 @@ class _MapScreenState extends State<MapScreen> {
   bool isLoading = true;
   LatLng? _userLocation;
   Map<String, FilterMap> currentFilters = {};
-  List<EventModel> _nearbyEvents = [];
-  late Uint8List _marker;
+  Uint8List? _marker;
 
   @override
   void initState() {
@@ -45,11 +44,9 @@ class _MapScreenState extends State<MapScreen> {
     }).whenComplete(() async {
       final markerData =
           await ImagesUtil.getBytesFromAsset(AppIcons.marker, 60);
-      final events = await EventService.getEvents();
       setState(() {
-        _marker = markerData;
-        _nearbyEvents = events;
         isLoading = false;
+        _marker = markerData;
       });
     });
   }
@@ -65,8 +62,8 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  List<EventModel> get filteredEvents {
-    List<EventModel> shownEvents = [..._nearbyEvents];
+  List<EventModel> filterEvents(List<EventModel> events) {
+    List<EventModel> shownEvents = [...events];
     for (final key in currentFilters.keys) {
       shownEvents = currentFilters[key]!.filter(shownEvents);
     }
@@ -92,20 +89,26 @@ class _MapScreenState extends State<MapScreen> {
             child: Scaffold(
                 body: Stack(
                   children: [
-                    GoogleMap(
-                        markers: Set.from(filteredEvents.map((event) {
-                          return Marker(
-                              markerId: MarkerId(event.id),
-                              infoWindow: InfoWindow(title: event.name),
-                              icon: BitmapDescriptor.fromBytes(_marker),
-                              position: LatLng(event.location.latitude,
-                                  event.location.longitude));
-                        })),
-                        onMapCreated: _onMapCreated,
-                        myLocationButtonEnabled: false,
-                        myLocationEnabled: true,
-                        zoomControlsEnabled: false,
-                        initialCameraPosition: initialPosition),
+                    Consumer<EventProvider>(builder: (_, eventProvider, __) {
+                      return GoogleMap(
+                          markers: Set.from(
+                              filterEvents(eventProvider.nextEvents)
+                                  .map((event) {
+                            return Marker(
+                                markerId: MarkerId(event.id),
+                                infoWindow: InfoWindow(title: event.name),
+                                icon: _marker == null
+                                    ? BitmapDescriptor.defaultMarker
+                                    : BitmapDescriptor.fromBytes(_marker!),
+                                position: LatLng(event.location.latitude,
+                                    event.location.longitude));
+                          })),
+                          onMapCreated: _onMapCreated,
+                          myLocationButtonEnabled: false,
+                          myLocationEnabled: true,
+                          zoomControlsEnabled: false,
+                          initialCameraPosition: initialPosition);
+                    }),
                     Positioned(
                         top: 20,
                         left: 20,

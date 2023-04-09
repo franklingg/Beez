@@ -1,6 +1,7 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_routes.dart';
-import 'package:beez/models/user_model.dart';
+import 'package:beez/providers/event_provider.dart';
+import 'package:beez/services/event_service.dart';
 import 'package:beez/services/firebase_options.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
@@ -27,38 +28,45 @@ Future initialization() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
-extension AppDateExtension on DateTime {
-  DateTime getDateOnly() {
-    return DateTime(year, month, day);
-  }
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FutureProvider<UserProvider>(
-        initialData: UserProvider(),
-        create: (context) async {
-          final provider = UserProvider();
-          final initialUsers = await UserService.getUsers();
-          provider.addAll(initialUsers);
-          return provider;
-        },
+    return MultiProvider(
+        providers: [
+          FutureProvider<UserProvider>(
+              initialData: UserProvider(),
+              create: (context) async {
+                final provider = UserProvider();
+                final initialUsers = await UserService.getUsers();
+                provider.addAll(initialUsers);
+                return provider;
+              }),
+          FutureProvider<EventProvider>(
+              initialData: EventProvider(),
+              create: (context) async {
+                final provider = EventProvider();
+                final initialEvents = await EventService.getEvents();
+                provider.addAll(initialEvents);
+                return provider;
+              })
+        ],
         child: MaterialApp.router(
             localizationsDelegates: GlobalMaterialLocalizations.delegates,
             supportedLocales: const [Locale('pt', 'BR')],
             theme: ThemeData(
               primaryColor: AppColors.yellow,
               textTheme: GoogleFonts.notoSansTextTheme(const TextTheme(
+                  headlineLarge: TextStyle(fontSize: 17, color: AppColors.blue),
                   headlineMedium:
                       TextStyle(fontSize: 14, color: AppColors.blue),
                   displayMedium:
                       TextStyle(fontSize: 16, color: AppColors.black),
                   displaySmall: TextStyle(fontSize: 13, color: AppColors.brown),
+                  bodyLarge: TextStyle(fontSize: 18, color: AppColors.black),
                   bodyMedium: TextStyle(fontSize: 15, color: AppColors.black),
-                  bodySmall: TextStyle(fontSize: 12, color: AppColors.yellow),
+                  bodySmall: TextStyle(fontSize: 13, color: AppColors.black),
                   titleLarge: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

@@ -26,9 +26,7 @@ class TopBar extends StatelessWidget implements PreferredSize {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
-              onTap: () {
-                GoRouter.of(context).pop();
-              },
+              onTap: () => GoRouter.of(context).pop(),
               child: const Icon(Icons.arrow_back, size: 25),
             ),
             Expanded(

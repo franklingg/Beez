@@ -1,5 +1,5 @@
-import 'package:beez/main.dart';
 import 'package:beez/models/event_model.dart';
+import 'package:beez/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 

@@ -13,7 +13,7 @@ class ProfileItem extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         GoRouter.of(context)
-            .goNamed(ProfileScreen.name, queryParams: {'id': user.id});
+            .pushNamed(ProfileScreen.name, queryParams: {'id': user.id});
       },
       child: Row(
         children: [

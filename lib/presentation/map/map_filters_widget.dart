@@ -83,9 +83,7 @@ class _MapFiltersState extends State<MapFilters> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      GoRouter.of(context).pop();
-                    },
+                    onTap: () => GoRouter.of(context).pop(),
                     child: const Icon(Icons.close_rounded,
                         size: 28, color: AppColors.mediumGrey),
                   )
