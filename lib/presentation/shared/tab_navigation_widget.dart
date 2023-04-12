@@ -13,7 +13,7 @@ class TabNavigation extends StatelessWidget {
 
     return Row(
       children: [
-        TextButton(onPressed: () {}, child: const Icon(AppMap.map_marked_alt)),
+        TextButton(onPressed: () {}, child: const Icon(AppMap)),
         TextButton(onPressed: () {}, child: const Icon(Icons.rss_feed)),
         TextButton(onPressed: () {}, child: const Icon(Icons.person_outline))
       ],
