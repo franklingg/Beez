@@ -13,5 +13,5 @@ class AppColors {
   static const Color mediumGrey = Color.fromRGBO(92, 92, 92, 0.6);
   static const Color lightGrey = Color.fromRGBO(205, 205, 205, 0.4);
   static const Color lighterGrey = Color(0xFFF0F0F0);
-  static const Color boxShadow = Color.fromRGBO(0, 0, 0, 0.25);
+  static const Color shadow = Color.fromRGBO(0, 0, 0, 0.3);
 }

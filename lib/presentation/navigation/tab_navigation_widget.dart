@@ -13,13 +13,11 @@ class TabNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentLocation = GoRouter.of(context).location;
-
     return Container(
       height: 80,
       padding: const EdgeInsets.only(bottom: 15),
       decoration: const BoxDecoration(color: AppColors.white, boxShadow: [
-        BoxShadow(
-            color: AppColors.boxShadow, offset: Offset(0, -1), blurRadius: 4)
+        BoxShadow(color: AppColors.shadow, offset: Offset(0, -1), blurRadius: 4)
       ]),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,7 +1,9 @@
-import 'package:beez/constants/app_colors.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
+import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:overlay_builder/overlay_builder.dart';
 
 class MapScreen extends StatefulWidget {
   static const name = "map";
@@ -13,23 +15,44 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
+  bool isLoading = true;
+  late LatLng _userLocation = LatLng(0, 0);
 
-  final LatLng _center = const LatLng(45.521563, -122.677433);
+  @override
+  void initState() {
+    super.initState();
+    getUserCurrentLocation().then((currentLocation) {
+      setState(() {
+        if (currentLocation != null) _userLocation = currentLocation;
+        isLoading = false;
+      });
+    });
+  }
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
+  Future<LatLng?> getUserCurrentLocation() async {
+    try {
+      await Geolocator.requestPermission();
+      final location = await Geolocator.getCurrentPosition();
+      return LatLng(location.latitude, location.longitude);
+    } catch (e) {}
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        body: GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(target: _center, zoom: 11),
-        ),
-        bottomNavigationBar: const TabNavigation(),
-      ),
-    );
+        child: Loading(
+            isLoading: isLoading,
+            child: Scaffold(
+                body: GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition:
+                      CameraPosition(target: _userLocation, zoom: 8),
+                ),
+                bottomNavigationBar: const TabNavigation())));
   }
 }

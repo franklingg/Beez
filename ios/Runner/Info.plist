@@ -49,5 +49,9 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Este aplicativo precisa de acesso à localização quando aberto.</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>Este aplicativo utiliza acesso à localização em background.</string>
 	</dict>
 </plist>

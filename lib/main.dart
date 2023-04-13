@@ -36,18 +36,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      theme: ThemeData(
-          primaryColor: AppColors.yellow,
-          fontFamily: "NotoSans",
-          textTheme: const TextTheme(
-              bodyMedium: TextStyle(fontSize: 14, color: AppColors.black),
-              bodySmall: TextStyle(fontSize: 10, color: AppColors.yellow),
-              titleMedium: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black))),
-      title: "Beez",
-      routerConfig: AppRouter.router,
-    );
+        theme: ThemeData(
+            primaryColor: AppColors.yellow,
+            fontFamily: "NotoSans",
+            textTheme: const TextTheme(
+                bodyMedium: TextStyle(fontSize: 14, color: AppColors.black),
+                bodySmall: TextStyle(fontSize: 10, color: AppColors.yellow),
+                titleMedium: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black))),
+        title: "Beez",
+        routerConfig: AppRouter.router);
   }
 }

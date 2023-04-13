@@ -45,6 +45,8 @@ dependencies:
   flutter_svg: ^2.0.5
   flutter_polygon: ^0.3.0+2
   google_maps_flutter: ^2.2.5
+  geolocator: ^9.0.2
+  overlay_builder: ^1.1.0
 
 dev_dependencies:
   flutter_launcher_icons: "^0.12.0"
