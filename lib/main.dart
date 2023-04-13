@@ -1,5 +1,6 @@
+import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_routes.dart';
-import 'package:beez/firebase_options.dart';
+import 'package:beez/services/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -35,6 +36,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      theme: ThemeData(
+          primaryColor: AppColors.yellow,
+          fontFamily: "NotoSans",
+          textTheme: const TextTheme(
+              bodyMedium: TextStyle(fontSize: 14, color: AppColors.black),
+              bodySmall: TextStyle(fontSize: 10, color: AppColors.yellow),
+              titleMedium: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.black))),
       title: "Beez",
       routerConfig: AppRouter.router,
     );
