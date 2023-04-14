@@ -1,4 +1,5 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polygon/flutter_polygon.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,36 +16,29 @@ class NavigationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedIcon = Padding(
+        padding: const EdgeInsets.all(6),
+        child: icon.runtimeType == String
+            ? SvgPicture.asset(
+                icon,
+                height: 20,
+                colorFilter:
+                    const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+              )
+            : Icon(icon, color: AppColors.white, size: 20));
+    final unselectedIcon = icon.runtimeType == String
+        ? SvgPicture.asset(
+            icon,
+            height: 30,
+            colorFilter:
+                const ColorFilter.mode(AppColors.mediumGrey, BlendMode.srcIn),
+          )
+        : Icon(icon, color: AppColors.mediumGrey, size: 30);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
-          child: Container(
-              decoration: isSelected
-                  ? const ShapeDecoration(
-                      color: AppColors.darkYellow,
-                      shape: PolygonBorder(
-                          sides: 6,
-                          side: BorderSide(color: AppColors.darkYellow)))
-                  : null,
-              child: Padding(
-                  padding: EdgeInsets.all(isSelected ? 6 : 0),
-                  child: icon.runtimeType == String
-                      ? SvgPicture.asset(
-                          icon,
-                          height: isSelected ? 20 : 30,
-                          colorFilter: ColorFilter.mode(
-                              isSelected
-                                  ? AppColors.white
-                                  : AppColors.mediumGrey,
-                              BlendMode.srcIn),
-                        )
-                      : Icon(icon,
-                          color: isSelected
-                              ? AppColors.white
-                              : AppColors.mediumGrey,
-                          size: isSelected ? 20 : 30))),
-        ),
+            child: isSelected ? Hexagon(child: selectedIcon) : unselectedIcon),
         Text(text,
             style: TextStyle(
                 color: isSelected ? AppColors.darkYellow : AppColors.mediumGrey,
