@@ -14,6 +14,7 @@ abstract class Filter<T> {
   }
 }
 
+// ignore: constant_identifier_names
 enum FilterType { DATE, TIME, RANGE, BOOL, MULTISELECT }
 
 class DateFilter extends Filter<DateTime> {
@@ -31,7 +32,7 @@ class DateFilter extends Filter<DateTime> {
   @override
   DateTime get defaultValue => DateTime.now();
 
-  bool anyDate = false;
+  bool anyDate = true;
 }
 
 class TimeFilter extends Filter<TimeOfDay> {
@@ -49,7 +50,7 @@ class TimeFilter extends Filter<TimeOfDay> {
   @override
   FilterType get type => FilterType.TIME;
 
-  bool anyTime = false;
+  bool anyTime = true;
 }
 
 class RangeFilter extends Filter<Tuple2<int, int>> {

@@ -13,7 +13,9 @@ class MapFilters extends StatefulWidget {
     MultiSelectFilter(title: "Interesses")
   ];
 
-  MapFilters({super.key, required this.userFilters});
+  final ValueChanged<List<Filter>> onSave;
+
+  MapFilters({super.key, required this.userFilters, required this.onSave});
 
   @override
   State<MapFilters> createState() => _MapFiltersState();
@@ -30,6 +32,12 @@ class _MapFiltersState extends State<MapFilters> {
             (userFilter) => (userFilter.title == filter.title),
             orElse: () => filter)))
         .toList();
+  }
+
+  void resetFilters() {
+    setState(() {
+      currentFilters = widget.defaultFilters;
+    });
   }
 
   @override

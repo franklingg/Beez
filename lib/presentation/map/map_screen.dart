@@ -48,10 +48,17 @@ class _MapScreenState extends State<MapScreen> {
     return null;
   }
 
+  void applyFilters(List<Filter> newFilters) {
+    setState(() {
+      currentFilters = newFilters;
+    });
+  }
+
   Future openFilter() {
     return showDialog(
         context: context,
-        builder: (dialogCtx) => MapFilters(userFilters: currentFilters));
+        builder: (dialogCtx) =>
+            MapFilters(userFilters: currentFilters, onSave: applyFilters));
   }
 
   @override
