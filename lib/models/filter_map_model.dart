@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-abstract class Filter<T> {
+abstract class FilterMap<T> {
   late T currentValue;
   List<String> filter(List<String> data);
-  FilterType get type;
+  FilterMapType get type;
   T get defaultValue;
   // final String fieldToFilter;
   String title;
   String? label;
-  Filter({required this.title, this.label}) {
+  FilterMap({required this.title, this.label}) {
     currentValue = defaultValue;
   }
 }
 
 // ignore: constant_identifier_names
-enum FilterType { DATE, TIME, RANGE, BOOL, MULTISELECT }
+enum FilterMapType { DATE, TIME, RANGE, BOOL, MULTISELECT }
 
-class DateFilter extends Filter<DateTime> {
+class DateFilter extends FilterMap<DateTime> {
   DateFilter({required super.title, super.label});
 
   @override
@@ -27,7 +27,7 @@ class DateFilter extends Filter<DateTime> {
   }
 
   @override
-  FilterType get type => FilterType.DATE;
+  FilterMapType get type => FilterMapType.DATE;
 
   @override
   DateTime get defaultValue => DateTime.now();
@@ -35,7 +35,7 @@ class DateFilter extends Filter<DateTime> {
   bool anyDate = true;
 }
 
-class RangeFilter extends Filter<RangeValues> {
+class RangeFilter extends FilterMap<RangeValues> {
   RangeFilter({required super.title, super.label});
 
   @override
@@ -48,12 +48,12 @@ class RangeFilter extends Filter<RangeValues> {
   }
 
   @override
-  FilterType get type => FilterType.RANGE;
+  FilterMapType get type => FilterMapType.RANGE;
 
   bool isMaxDistance() => currentValue.end == defaultValue.end;
 }
 
-class BooleanFilter extends Filter<bool> {
+class BooleanFilter extends FilterMap<bool> {
   BooleanFilter({required super.title, super.label});
 
   @override
@@ -66,10 +66,10 @@ class BooleanFilter extends Filter<bool> {
   }
 
   @override
-  FilterType get type => FilterType.BOOL;
+  FilterMapType get type => FilterMapType.BOOL;
 }
 
-class MultiSelectFilter extends Filter<List<String>> {
+class MultiSelectFilter extends FilterMap<List<String>> {
   MultiSelectFilter({required super.title, super.label});
 
   @override
@@ -82,5 +82,5 @@ class MultiSelectFilter extends Filter<List<String>> {
   }
 
   @override
-  FilterType get type => FilterType.MULTISELECT;
+  FilterMapType get type => FilterMapType.MULTISELECT;
 }

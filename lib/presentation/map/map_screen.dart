@@ -1,14 +1,20 @@
+import 'dart:typed_data';
+
 import 'package:beez/constants/app_colors.dart';
-import 'package:beez/models/filter_model.dart';
-import 'package:beez/presentation/feed/feed_screen.dart';
+import 'package:beez/constants/app_icons.dart';
+import 'package:beez/models/event_model.dart';
+import 'package:beez/models/filter_map_model.dart';
 import 'package:beez/presentation/map/map_filters_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/add_event_widget.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
+import 'package:beez/utils/images_util.dart';
+import 'package:beez/utils/map_style.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
@@ -23,7 +29,9 @@ class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
   bool isLoading = true;
   LatLng? _userLocation;
-  Map<String, Filter> currentFilters = {};
+  Map<String, FilterMap> currentFilters = {};
+  List<Event> _nearbyEvents = [];
+  late Uint8List _marker;
 
   @override
   void initState() {
@@ -31,6 +39,14 @@ class _MapScreenState extends State<MapScreen> {
     getUserCurrentLocation().then((currentLocation) {
       setState(() {
         _userLocation = currentLocation;
+      });
+    }).whenComplete(() async {
+      final markerData =
+          await ImagesUtil.getBytesFromAsset(AppIcons.marker, 60);
+      final events = await getEvents();
+      setState(() {
+        _marker = markerData;
+        _nearbyEvents = events;
         isLoading = false;
       });
     });
@@ -38,18 +54,31 @@ class _MapScreenState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    mapController.setMapStyle(MapStyle.data);
   }
 
-  Future<LatLng?> getUserCurrentLocation() async {
+  Future<LatLng> getUserCurrentLocation() async {
     try {
       await Geolocator.requestPermission();
       final location = await Geolocator.getCurrentPosition();
       return LatLng(location.latitude, location.longitude);
-    } catch (e) {}
-    return null;
+    } catch (e) {
+      return Future.error(e);
+    }
   }
 
-  void applyFilters(Map<String, Filter> newFilters) {
+  Future<List<Event>> getEvents() async {
+    try {
+      final db = FirebaseFirestore.instance;
+      final query = await db.collection('events').get();
+      final events = query.docs.map((doc) => Event.fromMap(doc)).toList();
+      return events;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  void applyFilters(Map<String, FilterMap> newFilters) {
     setState(() {
       currentFilters = newFilters;
     });
@@ -73,6 +102,14 @@ class _MapScreenState extends State<MapScreen> {
                 body: Stack(
                   children: [
                     GoogleMap(
+                        markers: Set.from(_nearbyEvents.map((event) {
+                          return Marker(
+                              markerId: MarkerId(event.id),
+                              infoWindow: InfoWindow(title: event.name),
+                              icon: BitmapDescriptor.fromBytes(_marker),
+                              position: LatLng(event.location.latitude,
+                                  event.location.longitude));
+                        })),
                         onMapCreated: _onMapCreated,
                         myLocationButtonEnabled: false,
                         myLocationEnabled: true,

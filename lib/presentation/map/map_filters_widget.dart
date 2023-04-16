@@ -1,6 +1,6 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_tags.dart';
-import 'package:beez/models/filter_model.dart';
+import 'package:beez/models/filter_map_model.dart';
 import 'package:beez/presentation/map/filter_item/bool_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/date_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/distance_filter_item.dart';
@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MapFilters extends StatefulWidget {
-  final Map<String, Filter> userFilters;
-  final Map<String, Filter> defaultFilters = {
+  final Map<String, FilterMap> userFilters;
+  final Map<String, FilterMap> defaultFilters = {
     "distance": RangeFilter(title: "Distância"),
     "date": DateFilter(title: "Data", label: "Qualquer dia"),
     "free": BooleanFilter(
@@ -21,7 +21,7 @@ class MapFilters extends StatefulWidget {
     "interest": MultiSelectFilter(title: "Interesses")
   };
 
-  final ValueChanged<Map<String, Filter>> onSave;
+  final ValueChanged<Map<String, FilterMap>> onSave;
 
   MapFilters({super.key, required this.userFilters, required this.onSave});
 
@@ -30,7 +30,7 @@ class MapFilters extends StatefulWidget {
 }
 
 class _MapFiltersState extends State<MapFilters> {
-  late Map<String, Filter> currentFilters;
+  late Map<String, FilterMap> currentFilters;
 
   @override
   void initState() {
@@ -73,7 +73,7 @@ class _MapFiltersState extends State<MapFilters> {
                   )
                 ],
               ),
-              FilterItem(
+              FilterMapItem(
                   title: currentFilters['distance']!.title,
                   child: DistanceFilterItem(
                     distanceFilter: currentFilters['distance'] as RangeFilter,
@@ -83,12 +83,14 @@ class _MapFiltersState extends State<MapFilters> {
                       });
                     },
                   )),
-              FilterItem(
+              FilterMapItem(
                   title: currentFilters['date']!.title,
                   child: DateFilterItem(
                       dateFilter: currentFilters['date'] as DateFilter,
                       onChangedDate: (newDate) {
-                        currentFilters['date']!.currentValue = newDate;
+                        setState(() {
+                          currentFilters['date']!.currentValue = newDate;
+                        });
                       },
                       onChangedAnyDate: () {
                         setState(() {
@@ -96,7 +98,7 @@ class _MapFiltersState extends State<MapFilters> {
                               !(currentFilters['date']! as DateFilter).anyDate;
                         });
                       })),
-              FilterItem(
+              FilterMapItem(
                   title: currentFilters['free']!.title,
                   child: BoolFilterItem(
                       boolFilter: currentFilters['free'] as BooleanFilter,
@@ -106,7 +108,7 @@ class _MapFiltersState extends State<MapFilters> {
                               !currentFilters['free']!.currentValue;
                         });
                       })),
-              FilterItem(
+              FilterMapItem(
                   title: currentFilters['media']!.title,
                   child: BoolFilterItem(
                       boolFilter: currentFilters['media'] as BooleanFilter,
@@ -116,7 +118,7 @@ class _MapFiltersState extends State<MapFilters> {
                               !currentFilters['media']!.currentValue;
                         });
                       })),
-              FilterItem(
+              FilterMapItem(
                   title: currentFilters['interest']!.title,
                   child: InterestFilterItem(
                       interestFilter:

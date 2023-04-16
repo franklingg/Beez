@@ -1,6 +1,6 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_tags.dart';
-import 'package:beez/models/filter_model.dart';
+import 'package:beez/models/filter_map_model.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 

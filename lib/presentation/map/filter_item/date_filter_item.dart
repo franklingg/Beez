@@ -1,5 +1,5 @@
 import 'package:beez/constants/app_colors.dart';
-import 'package:beez/models/filter_model.dart';
+import 'package:beez/models/filter_map_model.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 
@@ -22,6 +22,17 @@ class DateFilterItem extends StatelessWidget {
     return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
 
+  void openDatePicker(BuildContext context) async {
+    final pickedDate = await showDatePicker(
+        context: context,
+        initialDate: dateFilter.currentValue,
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2101));
+    if (pickedDate != null) {
+      onChangedDate(pickedDate);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -33,22 +44,28 @@ class DateFilterItem extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
                 decoration: BoxDecoration(
                     border: Border.all(color: AppColors.grey, width: 2)),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: dateFilter.anyDate
-                          ? Text(
-                              "XX/XX",
-                              style: Theme.of(context).textTheme.labelMedium,
-                            )
-                          : Text(
-                              getDate(dateFilter.currentValue),
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                    ),
-                    const Icon(Icons.calendar_month_outlined,
-                        color: AppColors.darkYellow, size: 25)
-                  ],
+                child: GestureDetector(
+                  onTap: () {
+                    if (dateFilter.anyDate) onChangedAnyDate();
+                    openDatePicker(context);
+                  },
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: dateFilter.anyDate
+                            ? Text(
+                                "XX/XX",
+                                style: Theme.of(context).textTheme.labelMedium,
+                              )
+                            : Text(
+                                getDate(dateFilter.currentValue),
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                      ),
+                      const Icon(Icons.calendar_month_outlined,
+                          color: AppColors.darkYellow, size: 25)
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -62,6 +79,7 @@ class DateFilterItem extends StatelessWidget {
                   inactiveBorderColor: AppColors.mediumGrey,
                   type: GFCheckboxType.circle,
                   onChanged: (_) {
+                    onChangedDate(DateTime.now());
                     onChangedAnyDate();
                   },
                   value: dateFilter.anyDate,

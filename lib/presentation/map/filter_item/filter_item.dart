@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class FilterItem extends StatelessWidget {
+class FilterMapItem extends StatelessWidget {
   final String title;
   final Widget child;
-  const FilterItem({super.key, required this.title, required this.child});
+  const FilterMapItem({super.key, required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
