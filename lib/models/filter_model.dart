@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tuple/tuple.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 abstract class Filter<T> {
   late T currentValue;
@@ -35,29 +35,11 @@ class DateFilter extends Filter<DateTime> {
   bool anyDate = true;
 }
 
-class TimeFilter extends Filter<TimeOfDay> {
-  TimeFilter({required super.title, super.label});
-
-  @override
-  TimeOfDay get defaultValue => const TimeOfDay(hour: 0, minute: 0);
-
-  @override
-  List<String> filter(List<String> data) {
-    // TODO: implement filter
-    throw UnimplementedError();
-  }
-
-  @override
-  FilterType get type => FilterType.TIME;
-
-  bool anyTime = true;
-}
-
-class RangeFilter extends Filter<Tuple2<int, int>> {
+class RangeFilter extends Filter<RangeValues> {
   RangeFilter({required super.title, super.label});
 
   @override
-  Tuple2<int, int> get defaultValue => const Tuple2(0, 30);
+  RangeValues get defaultValue => const RangeValues(0, 30);
 
   @override
   List<String> filter(List<String> data) {
@@ -68,7 +50,7 @@ class RangeFilter extends Filter<Tuple2<int, int>> {
   @override
   FilterType get type => FilterType.RANGE;
 
-  bool isMaxDistance() => currentValue.item2 == defaultValue.item2;
+  bool isMaxDistance() => currentValue.end == defaultValue.end;
 }
 
 class BooleanFilter extends Filter<bool> {

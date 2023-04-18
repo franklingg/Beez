@@ -3,6 +3,7 @@ import 'package:beez/models/filter_model.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
 import 'package:beez/presentation/map/map_filters_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
+import 'package:beez/presentation/shared/add_event_widget.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
   bool isLoading = true;
   LatLng? _userLocation;
-  List<Filter> currentFilters = [];
+  Map<String, Filter> currentFilters = {};
 
   @override
   void initState() {
@@ -48,7 +49,7 @@ class _MapScreenState extends State<MapScreen> {
     return null;
   }
 
-  void applyFilters(List<Filter> newFilters) {
+  void applyFilters(Map<String, Filter> newFilters) {
     setState(() {
       currentFilters = newFilters;
     });
@@ -64,7 +65,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final initialPosition =
-        CameraPosition(target: _userLocation ?? const LatLng(0, 0), zoom: 11);
+        CameraPosition(target: _userLocation ?? const LatLng(0, 0), zoom: 15);
     return SafeArea(
         child: Loading(
             isLoading: isLoading,
@@ -77,6 +78,32 @@ class _MapScreenState extends State<MapScreen> {
                         myLocationEnabled: true,
                         zoomControlsEnabled: false,
                         initialCameraPosition: initialPosition),
+                    Positioned(
+                        top: 20,
+                        left: 20,
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(7),
+                                boxShadow: const [
+                                  BoxShadow(
+                                      color: AppColors.shadow,
+                                      blurRadius: 10,
+                                      offset: Offset(2, 2))
+                                ]),
+                            width: 320,
+                            height: 45,
+                            child: Row(
+                              children: const [
+                                Expanded(
+                                    child: TextField(
+                                  decoration:
+                                      InputDecoration(border: InputBorder.none),
+                                )),
+                                Icon(Icons.search, color: AppColors.mediumGrey)
+                              ],
+                            ))),
                     Positioned(
                       right: 5,
                       top: 140,
@@ -104,23 +131,7 @@ class _MapScreenState extends State<MapScreen> {
                             )))
                       ]),
                     ),
-                    Positioned(
-                      right: 5,
-                      bottom: 20,
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        GestureDetector(
-                            onTap: () {
-                              // TODO: Update with new event screen
-                              GoRouter.of(context).pushNamed(FeedScreen.name);
-                            },
-                            child: const Hexagon(
-                                child: Padding(
-                              padding: EdgeInsets.all(8),
-                              child: Icon(Icons.add_rounded,
-                                  size: 30, color: AppColors.black),
-                            )))
-                      ]),
-                    )
+                    const AddEvent()
                   ],
                 ),
                 bottomNavigationBar: const TabNavigation())));

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -37,15 +38,30 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
         theme: ThemeData(
-            primaryColor: AppColors.yellow,
-            fontFamily: "NotoSans",
-            textTheme: const TextTheme(
-                bodyMedium: TextStyle(fontSize: 14, color: AppColors.black),
-                bodySmall: TextStyle(fontSize: 10, color: AppColors.yellow),
-                titleMedium: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black))),
+          primaryColor: AppColors.yellow,
+          textTheme: GoogleFonts.notoSansTextTheme(const TextTheme(
+              displayMedium: TextStyle(
+                  fontSize: 15,
+                  color: AppColors.black,
+                  fontWeight: FontWeight.w600),
+              bodyMedium: TextStyle(fontSize: 15, color: AppColors.black),
+              bodySmall: TextStyle(fontSize: 12, color: AppColors.yellow),
+              titleLarge: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.black),
+              titleMedium: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.black),
+              titleSmall: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white),
+              labelMedium: TextStyle(fontSize: 16, color: AppColors.mediumGrey),
+              labelSmall: TextStyle(
+                  fontSize: 12, color: AppColors.black, letterSpacing: 0.6))),
+        ),
         title: "Beez",
         routerConfig: AppRouter.router);
   }
