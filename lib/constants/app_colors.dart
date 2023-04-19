@@ -8,6 +8,7 @@ class AppColors {
   static const Color black = Color(0xFF1E0D05);
   static const Color brown = Color(0xFF694D28);
   static const Color blue = Color(0xFF07377A);
+  static const Color lightBlue = Color(0xFF1573FE);
   static const Color green = Color(0xFF04D361);
   static const Color grey = Color(0xFFD9D9D9);
   static const Color mediumGrey = Color.fromRGBO(92, 92, 92, 0.6);

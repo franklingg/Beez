@@ -5,14 +5,15 @@ import 'package:flutter_polygon/flutter_polygon.dart';
 class Hexagon extends StatelessWidget {
   final Widget child;
   final double size;
-  const Hexagon({super.key, this.size = 20, required this.child});
+  final Color? color;
+  const Hexagon({super.key, this.size = 20, required this.child, this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: const ShapeDecoration(
-            color: AppColors.yellow,
-            shape: PolygonBorder(
+        decoration: ShapeDecoration(
+            color: color ?? AppColors.yellow,
+            shape: const PolygonBorder(
                 sides: 6, side: BorderSide(color: AppColors.yellow))),
         child: child);
   }

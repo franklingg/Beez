@@ -1,20 +1,21 @@
-import 'dart:typed_data';
-
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_icons.dart';
 import 'package:beez/models/event_model.dart';
 import 'package:beez/models/filter_map_model.dart';
+import 'package:beez/presentation/feed/feed_screen.dart';
 import 'package:beez/presentation/map/map_filters_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
-import 'package:beez/presentation/shared/add_event_widget.dart';
+import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/utils/images_util.dart';
 import 'package:beez/utils/map_style.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class _MapScreenState extends State<MapScreen> {
   bool isLoading = true;
   LatLng? _userLocation;
   Map<String, FilterMap> currentFilters = {};
-  List<Event> _nearbyEvents = [];
+  List<EventModel> _nearbyEvents = [];
   late Uint8List _marker;
 
   @override
@@ -67,11 +68,11 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Future<List<Event>> getEvents() async {
+  Future<List<EventModel>> getEvents() async {
     try {
       final db = FirebaseFirestore.instance;
       final query = await db.collection('events').get();
-      final events = query.docs.map((doc) => Event.fromMap(doc)).toList();
+      final events = query.docs.map((doc) => EventModel.fromMap(doc)).toList();
       return events;
     } catch (e) {
       return Future.error(e);
@@ -91,6 +92,7 @@ class _MapScreenState extends State<MapScreen> {
             MapFilters(userFilters: currentFilters, onSave: applyFilters));
   }
 
+  // TODO: FILTER EVENTS PROPERLY AND ADD INFO WINDOW AND TEXT TO MARKER
   @override
   Widget build(BuildContext context) {
     final initialPosition =
@@ -168,7 +170,26 @@ class _MapScreenState extends State<MapScreen> {
                             )))
                       ]),
                     ),
-                    const AddEvent()
+                    Positioned(
+                      right: 5,
+                      bottom: 20,
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        GestureDetector(
+                            onTap: () {
+                              if (FirebaseAuth.instance.currentUser == null) {
+                                AppAlerts.login(alertContext: context);
+                              } else {
+                                GoRouter.of(context).pushNamed(FeedScreen.name);
+                              }
+                            },
+                            child: const Hexagon(
+                                child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Icon(Icons.add_rounded,
+                                  size: 30, color: AppColors.black),
+                            )))
+                      ]),
+                    )
                   ],
                 ),
                 bottomNavigationBar: const TabNavigation())));

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
-class Event {
+class EventModel {
   String id;
   String creator;
   Timestamp date;
@@ -14,20 +14,21 @@ class Event {
   String address;
   List<String> photos;
   List<String> tags;
-  Event({
-    required this.id,
-    required this.creator,
-    required this.date,
-    required this.name,
-    required this.description,
-    required this.interested,
-    required this.location,
-    required this.address,
-    required this.photos,
-    required this.tags,
-  });
+  bool isFree;
+  EventModel(
+      {required this.id,
+      required this.creator,
+      required this.date,
+      required this.name,
+      required this.description,
+      required this.interested,
+      required this.location,
+      required this.address,
+      required this.photos,
+      required this.tags,
+      required this.isFree});
 
-  Event copyWith({
+  EventModel copyWith({
     String? id,
     String? creator,
     Timestamp? date,
@@ -38,8 +39,9 @@ class Event {
     String? address,
     List<String>? photos,
     List<String>? tags,
+    bool? isFree,
   }) {
-    return Event(
+    return EventModel(
       id: id ?? this.id,
       creator: creator ?? this.creator,
       date: date ?? this.date,
@@ -50,6 +52,7 @@ class Event {
       address: address ?? this.address,
       photos: photos ?? this.photos,
       tags: tags ?? this.tags,
+      isFree: isFree ?? this.isFree,
     );
   }
 
@@ -65,49 +68,41 @@ class Event {
       'address': address,
       'photos': photos,
       'tags': tags,
+      'isFree': isFree,
     };
   }
 
-  factory Event.fromMap(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    final map = doc.data();
-    return Event(
-      id: doc.id,
-      creator: map['creator'] ?? '',
-      date: map['date'],
-      name: map['name'] ?? '',
-      description: map['description'] ?? '',
-      interested: List<String>.from(map['interested']),
-      location: map['location'],
-      address: map['address'] ?? '',
-      photos: List<String>.from(map['photos']),
-      tags: List<String>.from(map['tags']),
-    );
+  factory EventModel.fromMap(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final map = doc.data() as Map<String, dynamic>;
+    return EventModel(
+        id: doc.id,
+        creator: map['creator'] ?? '',
+        date: map['date'],
+        name: map['name'] ?? '',
+        description: map['description'] ?? '',
+        interested: List<String>.from(map['interested']),
+        location: map['location'],
+        address: map['address'] ?? '',
+        photos: List<String>.from(map['photos']),
+        tags: List<String>.from(map['tags']),
+        isFree: map['isFree'] ?? true);
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Event.fromJson(String source) => Event.fromMap(json.decode(source));
+  factory EventModel.fromJson(String source) =>
+      EventModel.fromMap(json.decode(source));
 
   @override
   String toString() {
-    return 'Event(id: $id, creator: $creator, date: $date, name: $name, description: $description, interested: $interested, location: $location, address: $address, photos: $photos, tags: $tags)';
+    return 'EventModel(id: $id, creator: $creator, date: $date, name: $name, description: $description, interested: $interested, location: $location, address: $address, photos: $photos, tags: $tags, isFree: $isFree)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Event &&
-        other.id == id &&
-        other.creator == creator &&
-        other.date == date &&
-        other.name == name &&
-        other.description == description &&
-        listEquals(other.interested, interested) &&
-        other.location == location &&
-        other.address == address &&
-        listEquals(other.photos, photos) &&
-        listEquals(other.tags, tags);
+    return other is EventModel && other.id == id;
   }
 
   @override
@@ -121,6 +116,7 @@ class Event {
         location.hashCode ^
         address.hashCode ^
         photos.hashCode ^
-        tags.hashCode;
+        tags.hashCode ^
+        isFree.hashCode;
   }
 }

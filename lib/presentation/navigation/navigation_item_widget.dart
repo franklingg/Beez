@@ -25,7 +25,7 @@ class NavigationItem extends StatelessWidget {
                 colorFilter:
                     const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
               )
-            : Icon(icon, color: AppColors.white, size: 20));
+            : Icon(icon, color: AppColors.white, size: 23));
     final unselectedIcon = icon.runtimeType == String
         ? SvgPicture.asset(
             icon,
@@ -38,7 +38,12 @@ class NavigationItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
-            child: isSelected ? Hexagon(child: selectedIcon) : unselectedIcon),
+            child: isSelected
+                ? Hexagon(
+                    child: selectedIcon,
+                    color: AppColors.darkYellow,
+                  )
+                : unselectedIcon),
         Text(text,
             style: TextStyle(
                 color: isSelected ? AppColors.darkYellow : AppColors.mediumGrey,
