@@ -12,7 +12,10 @@ class FilterMapItem extends StatelessWidget {
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.displayMedium,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .merge(const TextStyle(fontWeight: FontWeight.w600)),
         ),
         const SizedBox(height: 5),
         Padding(

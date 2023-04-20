@@ -8,10 +8,10 @@ import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
+import 'package:beez/services/event_service.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/images_util.dart';
 import 'package:beez/utils/map_style.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -37,14 +37,15 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    getUserCurrentLocation().then((currentLocation) {
+    UserService.getUserCurrentLocation().then((currentLocation) {
       setState(() {
-        _userLocation = currentLocation;
+        _userLocation =
+            LatLng(currentLocation.latitude, currentLocation.longitude);
       });
     }).whenComplete(() async {
       final markerData =
           await ImagesUtil.getBytesFromAsset(AppIcons.marker, 60);
-      final events = await getEvents();
+      final events = await EventService.getEvents();
       setState(() {
         _marker = markerData;
         _nearbyEvents = events;
@@ -58,45 +59,33 @@ class _MapScreenState extends State<MapScreen> {
     mapController.setMapStyle(MapStyle.data);
   }
 
-  Future<LatLng> getUserCurrentLocation() async {
-    try {
-      await Geolocator.requestPermission();
-      final location = await Geolocator.getCurrentPosition();
-      return LatLng(location.latitude, location.longitude);
-    } catch (e) {
-      return Future.error(e);
-    }
-  }
-
-  Future<List<EventModel>> getEvents() async {
-    try {
-      final db = FirebaseFirestore.instance;
-      final query = await db.collection('events').get();
-      final events = query.docs.map((doc) => EventModel.fromMap(doc)).toList();
-      return events;
-    } catch (e) {
-      return Future.error(e);
-    }
-  }
-
-  void applyFilters(Map<String, FilterMap> newFilters) {
+  void saveFilters(Map<String, FilterMap> newFilters) {
     setState(() {
       currentFilters = newFilters;
     });
+  }
+
+  List<EventModel> get filteredEvents {
+    List<EventModel> shownEvents = [..._nearbyEvents];
+    for (final key in currentFilters.keys) {
+      shownEvents = currentFilters[key]!.filter(shownEvents);
+    }
+    return shownEvents;
   }
 
   Future openFilter() {
     return showDialog(
         context: context,
         builder: (dialogCtx) =>
-            MapFilters(userFilters: currentFilters, onSave: applyFilters));
+            MapFilters(userFilters: currentFilters, onSave: saveFilters));
   }
 
-  // TODO: FILTER EVENTS PROPERLY AND ADD INFO WINDOW AND TEXT TO MARKER
+  // TODO: ADD INFO WINDOW AND TEXT TO MARKER
   @override
   Widget build(BuildContext context) {
-    final initialPosition =
-        CameraPosition(target: _userLocation ?? const LatLng(0, 0), zoom: 15);
+    final initialPosition = CameraPosition(
+        target: _userLocation ?? const LatLng(-12.508085, -45.065073),
+        zoom: _userLocation == null ? 4 : 15);
     return SafeArea(
         child: Loading(
             isLoading: isLoading,
@@ -104,7 +93,7 @@ class _MapScreenState extends State<MapScreen> {
                 body: Stack(
                   children: [
                     GoogleMap(
-                        markers: Set.from(_nearbyEvents.map((event) {
+                        markers: Set.from(filteredEvents.map((event) {
                           return Marker(
                               markerId: MarkerId(event.id),
                               infoWindow: InfoWindow(title: event.name),
@@ -176,7 +165,7 @@ class _MapScreenState extends State<MapScreen> {
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         GestureDetector(
                             onTap: () {
-                              if (FirebaseAuth.instance.currentUser == null) {
+                              if (UserService.currentUser == null) {
                                 AppAlerts.login(alertContext: context);
                               } else {
                                 GoRouter.of(context).pushNamed(FeedScreen.name);

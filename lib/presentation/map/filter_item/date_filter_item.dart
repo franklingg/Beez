@@ -24,6 +24,7 @@ class DateFilterItem extends StatelessWidget {
 
   void openDatePicker(BuildContext context) async {
     final pickedDate = await showDatePicker(
+        locale: const Locale('pt', 'BR'),
         context: context,
         initialDate: dateFilter.currentValue,
         firstDate: DateTime.now(),

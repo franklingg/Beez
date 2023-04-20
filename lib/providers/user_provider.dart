@@ -11,10 +11,14 @@ class UserProvider extends ChangeNotifier {
     db.collection('users').snapshots().listen((querySnapshot) {
       for (final docChange in querySnapshot.docChanges) {
         final changedUser = UserModel.fromMap(docChange.doc);
-        if (!_allUsers.contains(changedUser)) {
+        int userIndex = _allUsers.indexWhere((user) => user == changedUser);
+        // If new user
+        if (userIndex == -1) {
           _allUsers.add(changedUser);
-          notifyListeners();
+        } else {
+          _allUsers[userIndex] = changedUser;
         }
+        notifyListeners();
       }
     });
   }

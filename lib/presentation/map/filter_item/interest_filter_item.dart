@@ -27,7 +27,10 @@ class InterestFilterItem extends StatelessWidget {
               itemsTextStyle: Theme.of(context).textTheme.labelSmall,
               selectedItemsTextStyle: Theme.of(context).textTheme.labelSmall,
               title: Text("Interesses",
-                  style: Theme.of(context).textTheme.displayMedium),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .merge(const TextStyle(fontWeight: FontWeight.w600))),
               items: AppTags.items,
               initialValue: interestFilter.currentValue,
               onConfirm: onChanged);

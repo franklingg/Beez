@@ -1,7 +1,6 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_polygon/flutter_polygon.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class NavigationItem extends StatelessWidget {
@@ -40,8 +39,8 @@ class NavigationItem extends StatelessWidget {
         Expanded(
             child: isSelected
                 ? Hexagon(
-                    child: selectedIcon,
                     color: AppColors.darkYellow,
+                    child: selectedIcon,
                   )
                 : unselectedIcon),
         Text(text,

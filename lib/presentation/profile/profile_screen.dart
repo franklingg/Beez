@@ -2,19 +2,25 @@ import 'package:beez/constants/app_colors.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:flutter/material.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   static const name = "profile";
-  final int id;
-  const ProfileScreen({super.key, required this.id});
+  final String? id;
+  const ProfileScreen({super.key, this.id});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
   Widget build(BuildContext context) {
-    return const SafeArea(
+    return SafeArea(
       child: Scaffold(
         body: Center(
-          child: Text("PERFIL", style: TextStyle(color: AppColors.black)),
+          child: Text("PERFIL de id ${widget.id}",
+              style: TextStyle(color: AppColors.black)),
         ),
-        bottomNavigationBar: TabNavigation(),
+        bottomNavigationBar: const TabNavigation(),
       ),
     );
   }

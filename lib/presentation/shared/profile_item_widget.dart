@@ -12,7 +12,8 @@ class ProfileItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        GoRouter.of(context).goNamed(ProfileScreen.name);
+        GoRouter.of(context)
+            .goNamed(ProfileScreen.name, queryParams: {'id': user.id});
       },
       child: Row(
         children: [

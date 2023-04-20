@@ -18,6 +18,7 @@ class DistanceFilterItem extends StatelessWidget {
           child: SizedBox(
             height: 15,
             child: RangeSlider(
+                divisions: 30,
                 values: distanceFilter.currentValue,
                 activeColor: AppColors.darkYellow,
                 min: 0,

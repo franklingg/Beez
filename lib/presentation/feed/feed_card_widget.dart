@@ -1,10 +1,13 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/event_model.dart';
+import 'package:beez/presentation/event/event_screen.dart';
+import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/profile_item_widget.dart';
-import 'package:beez/utils/user_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:beez/services/user_service.dart';
+import 'package:beez/providers/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +20,6 @@ class FeedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(builder: (_, userProvider, __) {
       final creatorData = userProvider.getUser(data.creator);
-      final currentUser = FirebaseAuth.instance.currentUser;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -26,8 +28,10 @@ class FeedCard extends StatelessWidget {
               Expanded(child: ProfileItem(user: creatorData, iconSize: 21)),
               GestureDetector(
                   onTap: () {
-                    if (currentUser == null)
+                    // TODO: current user FOLLOW
+                    if (UserService.currentUser == null) {
                       AppAlerts.login(alertContext: context);
+                    }
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -41,30 +45,43 @@ class FeedCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image(image: NetworkImage(data.photos[0]))),
-          const SizedBox(height: 10),
-          RichText(
-            text: TextSpan(
-                text:
-                    "${DateFormat("dd/MM/yyyy").format(data.date.toDate())} - ${data.date.toDate().hour}h - ${distanceFromUser != null ? distanceFromUser!.toStringAsFixed(1) : '?'} km - ",
-                style: Theme.of(context).textTheme.displaySmall,
-                children: [
-                  TextSpan(
-                      text: data.isFree ? "Gratuito" : "Evento Pago",
-                      style: TextStyle(
-                          color:
-                              data.isFree ? AppColors.green : AppColors.blue))
-                ]),
-          ),
-          const SizedBox(height: 7),
-          Text(data.description, style: Theme.of(context).textTheme.labelSmall),
+          GestureDetector(
+              onTap: () {
+                GoRouter.of(context)
+                    .pushNamed(EventScreen.name, queryParams: {'id': data.id});
+              },
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image(image: NetworkImage(data.photos[0]))),
+                    const SizedBox(height: 10),
+                    RichText(
+                      text: TextSpan(
+                          text:
+                              "${DateFormat("dd/MM/yyyy").format(data.date.toDate())} - ${data.date.toDate().hour}h - ${distanceFromUser != null ? distanceFromUser!.toStringAsFixed(1) : '?'} km - ",
+                          style: Theme.of(context).textTheme.displaySmall,
+                          children: [
+                            TextSpan(
+                                text: data.isFree ? "Gratuito" : "Evento Pago",
+                                style: TextStyle(
+                                    color: data.isFree
+                                        ? AppColors.green
+                                        : AppColors.blue))
+                          ]),
+                    ),
+                    const SizedBox(height: 7),
+                    Text(data.description,
+                        style: Theme.of(context).textTheme.labelSmall),
+                  ])),
           const SizedBox(height: 7),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             GestureDetector(
               onTap: () {
-                if (currentUser == null) AppAlerts.login(alertContext: context);
+                // TODO: CURRENT USER LIKE
+                if (UserService.currentUser == null)
+                  AppAlerts.login(alertContext: context);
               },
               // TODO: Verify currentUser liked
               child: false
@@ -92,51 +109,68 @@ class FeedCard extends StatelessWidget {
                       )
                     ]),
             ),
+            Expanded(
+              child: GestureDetector(
+                  onTap: () {
+                    // TODO: DEEP LINK SHARE
+                  },
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.ios_share_outlined,
+                          size: 20,
+                          color: AppColors.black,
+                        ),
+                        Text(
+                          "Compartilhar",
+                          style:
+                              TextStyle(fontSize: 12, color: AppColors.black),
+                        )
+                      ])),
+            ),
             GestureDetector(
-                onTap: () {},
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.ios_share_outlined,
-                        size: 20,
-                        color: AppColors.black,
-                      ),
-                      Text(
-                        "Compartilhar",
-                        style: TextStyle(fontSize: 12, color: AppColors.black),
-                      )
-                    ])),
-            GestureDetector(
-              onTap: () {},
+              onTap: () {
+                AppAlerts.userList(
+                    alertContext: context,
+                    title: "Interessados",
+                    userList: data.interested
+                        .map((uid) => userProvider.getUser(uid))
+                        .toList());
+              },
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 30,
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: CircleAvatar(
-                            radius: 10,
-                            backgroundImage:
-                                NetworkImage(creatorData.profilePic),
+                  data.interested.length >= 2
+                      ? SizedBox(
+                          width: 30,
+                          child: Stack(
+                            children: [
+                              Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: CircleAvatar(
+                                  radius: 10,
+                                  backgroundImage: NetworkImage(userProvider
+                                      .getUser(data.interested.first)
+                                      .profilePic),
+                                ),
+                              ),
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: CircleAvatar(
+                                  radius: 10,
+                                  backgroundImage: NetworkImage(userProvider
+                                      .getUser(data.interested[1])
+                                      .profilePic),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: CircleAvatar(
-                            radius: 10,
-                            backgroundImage:
-                                NetworkImage(creatorData.profilePic),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        )
+                      : Container(),
                   const SizedBox(width: 3),
                   Text(
-                    "${data.interested.length} interessados",
+                    "${data.interested.length} interessado${data.interested.length == 1 ? '' : 's'}",
                     style:
                         const TextStyle(fontSize: 12, color: AppColors.black),
                   )

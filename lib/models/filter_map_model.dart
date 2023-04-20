@@ -1,12 +1,13 @@
+import 'package:beez/main.dart';
+import 'package:beez/models/event_model.dart';
 import 'package:flutter/material.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 abstract class FilterMap<T> {
   late T currentValue;
-  List<String> filter(List<String> data);
+  List<EventModel> filter(List<EventModel> data);
   FilterMapType get type;
   T get defaultValue;
-  // final String fieldToFilter;
   String title;
   String? label;
   FilterMap({required this.title, this.label}) {
@@ -21,30 +22,44 @@ class DateFilter extends FilterMap<DateTime> {
   DateFilter({required super.title, super.label});
 
   @override
-  List<String> filter(List<String> data) {
-    // TODO: implement filter
-    throw UnimplementedError();
+  List<EventModel> filter(List<EventModel> data) {
+    return data.where((event) {
+      if (anyDate) {
+        return true;
+      } else {
+        return currentValue.isBefore(event.date.toDate());
+      }
+    }).toList();
   }
 
   @override
   FilterMapType get type => FilterMapType.DATE;
 
   @override
-  DateTime get defaultValue => DateTime.now();
+  DateTime get defaultValue => DateTime.now().getDateOnly();
 
   bool anyDate = true;
 }
 
 class RangeFilter extends FilterMap<RangeValues> {
-  RangeFilter({required super.title, super.label});
+  final Position? currentPosition;
+  RangeFilter({required super.title, super.label, this.currentPosition});
 
   @override
   RangeValues get defaultValue => const RangeValues(0, 30);
 
   @override
-  List<String> filter(List<String> data) {
-    // TODO: implement filter
-    throw UnimplementedError();
+  List<EventModel> filter(List<EventModel> data) {
+    return data.where((event) {
+      if (currentPosition == null) return true;
+      final currentDistance = Geolocator.distanceBetween(
+          event.location.latitude,
+          event.location.longitude,
+          currentPosition!.latitude,
+          currentPosition!.longitude);
+      return (currentDistance >= currentValue.start * 1000) &&
+          (currentDistance <= currentValue.end * 1000);
+    }).toList();
   }
 
   @override
@@ -60,9 +75,11 @@ class BooleanFilter extends FilterMap<bool> {
   bool get defaultValue => false;
 
   @override
-  List<String> filter(List<String> data) {
-    // TODO: implement filter
-    throw UnimplementedError();
+  List<EventModel> filter(List<EventModel> data) {
+    return data.where((event) {
+      return !currentValue ||
+          (title == "Gratuidade" ? event.isFree : event.photos.isNotEmpty);
+    }).toList();
   }
 
   @override
@@ -76,9 +93,11 @@ class MultiSelectFilter extends FilterMap<List<String>> {
   List<String> get defaultValue => [];
 
   @override
-  List<String> filter(List<String> data) {
-    // TODO: implement filter
-    throw UnimplementedError();
+  List<EventModel> filter(List<EventModel> data) {
+    return data.where((event) {
+      return currentValue.isEmpty ||
+          currentValue.any((filterTag) => event.tags.contains(filterTag));
+    }).toList();
   }
 
   @override

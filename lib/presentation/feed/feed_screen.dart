@@ -6,11 +6,11 @@ import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/presentation/shared/top_bar_widget.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:beez/services/event_service.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class FeedScreen extends StatefulWidget {
   static const name = "feed";
@@ -27,39 +27,18 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void initState() {
     super.initState();
-    getUserCurrentLocation().then((location) {
+    UserService.getUserCurrentLocation().then((location) {
       setState(() {
         _userLocation = location;
       });
     }).whenComplete(() {
-      getEvents().then((events) {
+      EventService.getEvents().then((events) {
         setState(() {
           _allEvents = events;
           isLoading = false;
         });
       });
     });
-  }
-
-  Future<List<EventModel>> getEvents() async {
-    try {
-      final db = FirebaseFirestore.instance;
-      final query = await db.collection('events').get();
-      final events = query.docs.map((doc) => EventModel.fromMap(doc)).toList();
-      return events;
-    } catch (e) {
-      return Future.error(e);
-    }
-  }
-
-  Future<Position> getUserCurrentLocation() async {
-    try {
-      await Geolocator.requestPermission();
-      final location = await Geolocator.getCurrentPosition();
-      return location;
-    } catch (e) {
-      return Future.error(e);
-    }
   }
 
   @override
@@ -100,7 +79,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   GestureDetector(
                       onTap: () {
-                        if (FirebaseAuth.instance.currentUser == null) {
+                        if (UserService.currentUser == null) {
                           AppAlerts.login(alertContext: context);
                         } else {
                           GoRouter.of(context).pushNamed(FeedScreen.name);

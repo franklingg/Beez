@@ -1,26 +1,24 @@
 import 'package:beez/constants/app_colors.dart';
-import 'package:beez/constants/app_tags.dart';
 import 'package:beez/models/filter_map_model.dart';
 import 'package:beez/presentation/map/filter_item/bool_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/date_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/distance_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/filter_item.dart';
 import 'package:beez/presentation/map/filter_item/interest_filter_item.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MapFilters extends StatefulWidget {
   final Map<String, FilterMap> userFilters;
   final Map<String, FilterMap> defaultFilters = {
-    "distance": RangeFilter(title: "Distância"),
     "date": DateFilter(title: "Data", label: "Qualquer dia"),
     "free": BooleanFilter(
         title: "Gratuidade", label: "Apenas com entrada gratuita"),
-    "media": BooleanFilter(
-        title: "Multimídia", label: "Apenas eventos com fotos/links"),
+    "media":
+        BooleanFilter(title: "Multimídia", label: "Apenas eventos com fotos"),
     "interest": MultiSelectFilter(title: "Interesses")
   };
-
   final ValueChanged<Map<String, FilterMap>> onSave;
 
   MapFilters({super.key, required this.userFilters, required this.onSave});
@@ -36,12 +34,32 @@ class _MapFiltersState extends State<MapFilters> {
   void initState() {
     super.initState();
     currentFilters = {...widget.defaultFilters, ...widget.userFilters};
+    loadDistanceFilter();
+  }
+
+  Future loadDistanceFilter({bool useUserFilter = true}) {
+    if (useUserFilter && widget.userFilters.containsKey('distance')) {
+      currentFilters['distance'] = widget.userFilters['distance']!;
+      return Future.value();
+    } else {
+      return UserService.getUserCurrentLocation().then((userLocation) {
+        setState(() {
+          currentFilters['distance'] =
+              RangeFilter(title: "Distância", currentPosition: userLocation);
+        });
+      }).catchError((onError) {
+        setState(() {
+          currentFilters['distance'] = RangeFilter(title: "Distância");
+        });
+      });
+    }
   }
 
   void resetFilters() {
     setState(() {
       currentFilters = {...widget.defaultFilters};
     });
+    loadDistanceFilter(useUserFilter: false);
   }
 
   @override
@@ -73,16 +91,20 @@ class _MapFiltersState extends State<MapFilters> {
                   )
                 ],
               ),
-              FilterMapItem(
-                  title: currentFilters['distance']!.title,
-                  child: DistanceFilterItem(
-                    distanceFilter: currentFilters['distance'] as RangeFilter,
-                    onChanged: (newDistance) {
-                      setState(() {
-                        currentFilters['distance']!.currentValue = newDistance;
-                      });
-                    },
-                  )),
+              currentFilters.containsKey('distance')
+                  ? FilterMapItem(
+                      title: currentFilters['distance']!.title,
+                      child: DistanceFilterItem(
+                        distanceFilter:
+                            currentFilters['distance'] as RangeFilter,
+                        onChanged: (newDistance) {
+                          setState(() {
+                            currentFilters['distance']!.currentValue =
+                                newDistance;
+                          });
+                        },
+                      ))
+                  : Container(),
               FilterMapItem(
                   title: currentFilters['date']!.title,
                   child: DateFilterItem(

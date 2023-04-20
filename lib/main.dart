@@ -52,10 +52,10 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primaryColor: AppColors.yellow,
               textTheme: GoogleFonts.notoSansTextTheme(const TextTheme(
-                  displayMedium: TextStyle(
-                      fontSize: 15,
-                      color: AppColors.black,
-                      fontWeight: FontWeight.w600),
+                  headlineMedium:
+                      TextStyle(fontSize: 14, color: AppColors.blue),
+                  displayMedium:
+                      TextStyle(fontSize: 16, color: AppColors.black),
                   displaySmall: TextStyle(fontSize: 13, color: AppColors.brown),
                   bodyMedium: TextStyle(fontSize: 15, color: AppColors.black),
                   bodySmall: TextStyle(fontSize: 12, color: AppColors.yellow),
