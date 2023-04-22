@@ -1,3 +1,4 @@
+import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
@@ -5,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: "/feed",
+    initialLocation: "/${MapScreen.name}",
     routes: [
       GoRoute(
           path: "/${MapScreen.name}",
@@ -19,7 +20,12 @@ class AppRouter {
           path: "/${ProfileScreen.name}",
           name: ProfileScreen.name,
           builder: (context, state) =>
-              ProfileScreen(id: int.parse(state.queryParams['id'] ?? "-1"))),
+              ProfileScreen(id: state.queryParams['id'])),
+      GoRoute(
+          path: "/${EventScreen.name}",
+          name: EventScreen.name,
+          builder: (context, state) =>
+              EventScreen(id: state.queryParams['id'])),
     ],
   );
 }
