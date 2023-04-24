@@ -2,56 +2,53 @@ import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_routes.dart';
 import 'package:beez/models/user_model.dart';
 import 'package:beez/services/firebase_options.dart';
-import 'package:beez/utils/user_provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:beez/services/user_service.dart';
+import 'package:beez/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() async {
+void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await initialization();
-  final allUsers = await getUsers();
-  FlutterNativeSplash.remove();
-  runApp(MyApp(initialUsers: allUsers));
+
+  initialization().then((_) {
+    runApp(const MyApp());
+    FlutterNativeSplash.remove();
+  });
 }
 
-Future<void> initialization() async {
+Future initialization() async {
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await initializeDateFormatting('pt_BR');
 }
 
-Future<List<UserModel>> getUsers() async {
-  try {
-    final db = FirebaseFirestore.instance;
-    final query = await db.collection('users').get();
-    final users = query.docs.map((doc) => UserModel.fromMap(doc)).toList();
-    return users;
-  } catch (e) {
-    return Future.error(e);
+extension AppDateExtension on DateTime {
+  DateTime getDateOnly() {
+    return DateTime(year, month, day);
   }
 }
 
 class MyApp extends StatelessWidget {
-  final List<UserModel> initialUsers;
-  const MyApp({Key? key, required this.initialUsers}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<UserProvider>(
-        create: (context) {
+    return FutureProvider<UserProvider>(
+        initialData: UserProvider(),
+        create: (context) async {
           final provider = UserProvider();
+          final initialUsers = await UserService.getUsers();
           provider.addAll(initialUsers);
           return provider;
         },
         child: MaterialApp.router(
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            supportedLocales: const [Locale('pt', 'BR')],
             theme: ThemeData(
               primaryColor: AppColors.yellow,
               textTheme: GoogleFonts.notoSansTextTheme(const TextTheme(
