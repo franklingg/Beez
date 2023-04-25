@@ -1,25 +1,20 @@
-
 import 'package:beez/models/user_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
   final List<UserModel> _allUsers = [];
 
   UserProvider() {
-    final db = FirebaseFirestore.instance;
-    db.collection('users').snapshots().listen((querySnapshot) {
-      for (final docChange in querySnapshot.docChanges) {
-        final changedUser = UserModel.fromMap(docChange.doc);
-        int userIndex = _allUsers.indexWhere((user) => user == changedUser);
-        // If new user
-        if (userIndex == -1) {
-          _allUsers.add(changedUser);
-        } else {
-          _allUsers[userIndex] = changedUser;
-        }
-        notifyListeners();
+    UserService.subscribeToUsers((changedUser) {
+      int userIndex = _allUsers.indexWhere((user) => user == changedUser);
+      // If new user
+      if (userIndex == -1) {
+        _allUsers.add(changedUser);
+      } else {
+        _allUsers[userIndex] = changedUser;
       }
+      notifyListeners();
     });
   }
 

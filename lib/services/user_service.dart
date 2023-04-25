@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beez/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,5 +27,16 @@ class UserService {
     } catch (e) {
       return Future.error(e);
     }
+  }
+
+  static StreamSubscription<QuerySnapshot<Map<String, dynamic>>>
+      subscribeToUsers(void Function(UserModel) action) {
+    final db = FirebaseFirestore.instance;
+    return db.collection('users').snapshots().listen((querySnapshot) {
+      for (final docChange in querySnapshot.docChanges) {
+        final changedUser = UserModel.fromMap(docChange.doc);
+        action(changedUser);
+      }
+    });
   }
 }

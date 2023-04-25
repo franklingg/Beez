@@ -1,25 +1,20 @@
 import 'package:beez/models/event_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:beez/services/event_service.dart';
 import 'package:flutter/material.dart';
 
 class EventProvider extends ChangeNotifier {
   final List<EventModel> _allEvents = [];
 
   EventProvider() {
-    final db = FirebaseFirestore.instance;
-    db.collection('events').snapshots().listen((querySnapshot) {
-      for (final docChange in querySnapshot.docChanges) {
-        final changedEvent = EventModel.fromMap(docChange.doc);
-        int eventIndex =
-            _allEvents.indexWhere((event) => event == changedEvent);
-        // If new event
-        if (eventIndex == -1) {
-          _allEvents.add(changedEvent);
-        } else {
-          _allEvents[eventIndex] = changedEvent;
-        }
-        notifyListeners();
+    EventService.subscribeToEvents((changedEvent) {
+      int eventIndex = _allEvents.indexWhere((event) => event == changedEvent);
+      // If new event
+      if (eventIndex == -1) {
+        _allEvents.add(changedEvent);
+      } else {
+        _allEvents[eventIndex] = changedEvent;
       }
+      notifyListeners();
     });
   }
 

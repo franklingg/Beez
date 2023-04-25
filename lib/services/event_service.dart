@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beez/models/event_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -22,5 +24,16 @@ class EventService {
     } catch (e) {
       return Future.error(e);
     }
+  }
+
+  static StreamSubscription<QuerySnapshot<Map<String, dynamic>>>
+      subscribeToEvents(void Function(EventModel) action) {
+    final db = FirebaseFirestore.instance;
+    return db.collection('events').snapshots().listen((querySnapshot) {
+      for (final docChange in querySnapshot.docChanges) {
+        final changedEvent = EventModel.fromMap(docChange.doc);
+        action(changedEvent);
+      }
+    });
   }
 }

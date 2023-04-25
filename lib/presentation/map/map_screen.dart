@@ -3,6 +3,7 @@ import 'package:beez/constants/app_icons.dart';
 import 'package:beez/models/event_model.dart';
 import 'package:beez/models/filter_map_model.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
+import 'package:beez/presentation/map/app_marker.dart';
 import 'package:beez/presentation/map/map_filters_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
@@ -13,10 +14,10 @@ import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/images_util.dart';
 import 'package:beez/utils/map_style.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:custom_info_window/custom_info_window.dart';
 
 class MapScreen extends StatefulWidget {
   static const name = "map";
@@ -27,11 +28,13 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  late GoogleMapController mapController;
+  late GoogleMapController _mapController;
+  final CustomInfoWindowController _infoWindowController =
+      CustomInfoWindowController();
   bool isLoading = true;
   LatLng? _userLocation;
   Map<String, FilterMap> currentFilters = {};
-  Uint8List? _marker;
+  Set<Marker> _markers = {};
 
   @override
   void initState() {
@@ -42,18 +45,28 @@ class _MapScreenState extends State<MapScreen> {
             LatLng(currentLocation.latitude, currentLocation.longitude);
       });
     }).whenComplete(() async {
-      final markerData =
-          await ImagesUtil.getBytesFromAsset(AppIcons.marker, 60);
-      setState(() {
-        isLoading = false;
-        _marker = markerData;
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        final eventProvider =
+            Provider.of<EventProvider>(context, listen: false);
+        Future.wait(eventProvider.nextEvents.map((event) async =>
+            await ImagesUtil.getMarkerBytesEvent(
+                AppIcons.marker, 60, event))).then((markerBytes) {
+          setState(() {
+            isLoading = false;
+            _markers = markerBytes
+                .map((m) => AppMarker.element(
+                    m.key, m.value, _infoWindowController, context))
+                .toSet();
+          });
+        });
       });
     });
   }
 
   void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-    mapController.setMapStyle(MapStyle.data);
+    _mapController = controller;
+    _mapController.setMapStyle(MapStyle.data);
+    _infoWindowController.googleMapController = controller;
   }
 
   void saveFilters(Map<String, FilterMap> newFilters) {
@@ -77,7 +90,13 @@ class _MapScreenState extends State<MapScreen> {
             MapFilters(userFilters: currentFilters, onSave: saveFilters));
   }
 
-  // TODO: ADD INFO WINDOW AND TEXT TO MARKER
+  @override
+  void dispose() {
+    _infoWindowController.dispose();
+    _mapController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final initialPosition = CameraPosition(
@@ -91,24 +110,27 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     Consumer<EventProvider>(builder: (_, eventProvider, __) {
                       return GoogleMap(
-                          markers: Set.from(
-                              filterEvents(eventProvider.nextEvents)
-                                  .map((event) {
-                            return Marker(
-                                markerId: MarkerId(event.id),
-                                infoWindow: InfoWindow(title: event.name),
-                                icon: _marker == null
-                                    ? BitmapDescriptor.defaultMarker
-                                    : BitmapDescriptor.fromBytes(_marker!),
-                                position: LatLng(event.location.latitude,
-                                    event.location.longitude));
-                          })),
+                          markers: _markers,
+                          // markers: Set.from(
+                          //     filterEvents(eventProvider.nextEvents)
+                          //         .map((event) {
+                          //   return AppMarker.element(
+                          //       event, _infoWindowController, context);
+                          // })),
                           onMapCreated: _onMapCreated,
+                          onTap: (position) {
+                            _infoWindowController.hideInfoWindow!();
+                          },
+                          onCameraMove: (position) {
+                            _infoWindowController.onCameraMove!();
+                          },
                           myLocationButtonEnabled: false,
                           myLocationEnabled: true,
                           zoomControlsEnabled: false,
+                          mapToolbarEnabled: false,
                           initialCameraPosition: initialPosition);
                     }),
+                    AppMarker.infoWindow(_infoWindowController),
                     Positioned(
                         top: 20,
                         left: 20,
@@ -129,9 +151,19 @@ class _MapScreenState extends State<MapScreen> {
                               children: const [
                                 Expanded(
                                     child: TextField(
-                                  decoration:
-                                      InputDecoration(border: InputBorder.none),
-                                )),
+                                        style: TextStyle(
+                                            height: 1.6,
+                                            fontSize: 14,
+                                            decoration: TextDecoration.none,
+                                            decorationThickness: 0,
+                                            color: AppColors.black),
+                                        decoration: InputDecoration(
+                                            hintStyle: TextStyle(
+                                                height: 1.6,
+                                                fontSize: 14,
+                                                color: AppColors.mediumGrey),
+                                            border: InputBorder.none,
+                                            hintText: "Pesquisar..."))),
                                 Icon(Icons.search, color: AppColors.mediumGrey)
                               ],
                             ))),
@@ -150,7 +182,7 @@ class _MapScreenState extends State<MapScreen> {
                         const SizedBox(height: 15),
                         GestureDetector(
                             onTap: () {
-                              mapController.animateCamera(
+                              _mapController.animateCamera(
                                   CameraUpdate.newCameraPosition(
                                       initialPosition));
                             },
