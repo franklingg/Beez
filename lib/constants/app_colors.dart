@@ -15,4 +15,7 @@ class AppColors {
   static const Color lightGrey = Color.fromRGBO(205, 205, 205, 0.4);
   static const Color lighterGrey = Color(0xFFF0F0F0);
   static const Color shadow = Color.fromRGBO(0, 0, 0, 0.3);
+  static const Color facebook = Color.fromRGBO(59, 89, 152, 0.54);
+  static const Color google = Color.fromRGBO(221, 75, 57, 0.54);
+  static const Color twitter = Color.fromRGBO(29, 161, 242, 0.54);
 }

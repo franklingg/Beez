@@ -1,8 +1,9 @@
 import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
-import 'package:beez/presentation/login/login_screen.dart';
+import 'package:beez/presentation/user/login_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
+import 'package:beez/presentation/user/registration_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
@@ -23,7 +24,6 @@ class AppRouter {
         builder: (context, state) => ProfileScreen(id: state.queryParams['id']),
         redirect: (context, state) {
           if (state.queryParams['id'] == null) return "/${LoginScreen.name}";
-          return '';
         },
       ),
       GoRoute(
@@ -35,6 +35,10 @@ class AppRouter {
           path: "/${LoginScreen.name}",
           name: LoginScreen.name,
           builder: (context, state) => const LoginScreen()),
+      GoRoute(
+          path: "/${RegistrationScreen.name}",
+          name: RegistrationScreen.name,
+          builder: (context, state) => const RegistrationScreen())
     ],
   );
 }
