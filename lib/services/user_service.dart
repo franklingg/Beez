@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:beez/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:geolocator/geolocator.dart';
 
 class UserService {
@@ -38,5 +39,28 @@ class UserService {
         action(changedUser);
       }
     });
+  }
+
+  static Future<String?> performNormalLogin(
+      String email, String password) async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      return "Login bem sucedido!";
+    } on FirebaseAuthException catch (error) {
+      String message = "Login Falhou.";
+      switch (error.code) {
+        case 'invalid-email':
+          message = "O e-mail inserido é inválido.";
+          break;
+        case 'user-not-found':
+          message = "Este usuário não existe.";
+          break;
+        case 'wrong-password':
+          message = "O e-mail inserido é inválido.";
+          message = "A senha inserida é inválida.";
+      }
+      return Future.error(message);
+    }
   }
 }

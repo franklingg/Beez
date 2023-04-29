@@ -1,5 +1,6 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/filter_map_model.dart';
+import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 
@@ -41,10 +42,7 @@ class DateFilterItem extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
-                decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.grey, width: 2)),
+              child: AppField(
                 child: GestureDetector(
                   onTap: () {
                     if (dateFilter.anyDate) onChangedAnyDate();
@@ -53,6 +51,8 @@ class DateFilterItem extends StatelessWidget {
                   child: Row(
                     children: [
                       Expanded(
+                          child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 9),
                         child: dateFilter.anyDate
                             ? Text(
                                 "XX/XX",
@@ -62,7 +62,7 @@ class DateFilterItem extends StatelessWidget {
                                 getDate(dateFilter.currentValue),
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
-                      ),
+                      )),
                       const Icon(Icons.calendar_month_outlined,
                           color: AppColors.darkYellow, size: 25)
                     ],
