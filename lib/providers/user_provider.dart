@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
   final List<UserModel> _allUsers = [];
+  String? currentUserId;
 
   UserProvider() {
-    UserService.subscribeToUsers((changedUser) {
+    UserService.subscribeToUsers(firestoreAction: (changedUser) {
       int userIndex = _allUsers.indexWhere((user) => user == changedUser);
       // If new user
       if (userIndex == -1) {
@@ -14,6 +15,9 @@ class UserProvider extends ChangeNotifier {
       } else {
         _allUsers[userIndex] = changedUser;
       }
+      notifyListeners();
+    }, fireauthAction: (userId) {
+      currentUserId = userId;
       notifyListeners();
     });
   }
@@ -35,4 +39,14 @@ class UserProvider extends ChangeNotifier {
   UserModel getUser(String id) {
     return _allUsers.firstWhere((user) => user.id == id);
   }
+
+  UserModel? findUser(String email) {
+    final userIdx = _allUsers.indexWhere((user) => user.email == email);
+    return (userIdx != -1 ? _allUsers[userIdx] : null);
+  }
+
+  // Future<UserModel?> get getCurrentUserData async {
+  //   final currentUserId = await UserService.currentUserId;
+  //   return currentUserId != null ? getUser(currentUserId) : null;
+  // }
 }

@@ -22,8 +22,10 @@ class AppRouter {
         path: "/${ProfileScreen.name}",
         name: ProfileScreen.name,
         builder: (context, state) => ProfileScreen(id: state.queryParams['id']),
+        // ignore: body_might_complete_normally_nullable
         redirect: (context, state) {
-          if (state.queryParams['id'] == null) return "/${LoginScreen.name}";
+          if (state.queryParams['id'] == null ||
+              state.queryParams['id']!.isEmpty) return "/${LoginScreen.name}";
         },
       ),
       GoRoute(

@@ -5,22 +5,28 @@ import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/carousel_widget.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/providers/user_provider.dart';
-import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   static const name = "profile";
   final String? id;
   const ProfileScreen({super.key, this.id});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(builder: (_, userProvider, __) {
-      final userData = userProvider.getUser(id!);
+      final userData = userProvider.getUser(widget.id!);
       return Consumer<EventProvider>(builder: (_, eventProvider, __) {
+        final userFollowing = userProvider.allUsers
+            .where((user) => user.followers.contains(widget.id));
         final eventsUserCreated = eventProvider.allEvents
             .where((event) => event.creator == userData.id);
         final eventsUserParticipated = eventProvider.allEvents
@@ -44,8 +50,9 @@ class ProfileScreen extends StatelessWidget {
                           child:
                               const Icon(Icons.arrow_back_outlined, size: 25),
                         ),
-                        // TODO: Verify if currentuser is page id user
-                        true ? const UserMenu() : const SizedBox()
+                        userProvider.currentUserId == widget.id
+                            ? const UserMenu()
+                            : const SizedBox()
                       ],
                     ),
                     Padding(
@@ -80,8 +87,7 @@ class ProfileScreen extends StatelessWidget {
                                           .textTheme
                                           .bodySmall),
                                   const SizedBox(width: 7),
-                                  Text(
-                                      "${userData.following.length.toString()}\nSeguindo",
+                                  Text("${userFollowing.length}\nSeguindo",
                                       textAlign: TextAlign.center,
                                       style: Theme.of(context)
                                           .textTheme
@@ -93,8 +99,7 @@ class ProfileScreen extends StatelessWidget {
                                           Theme.of(context).textTheme.bodySmall)
                                 ]),
                                 const SizedBox(height: 10),
-                                //TODO: Verify if current user is this id profile user
-                                true
+                                userProvider.currentUserId == widget.id
                                     ? Row(
                                         children: [
                                           Expanded(
@@ -105,7 +110,8 @@ class ProfileScreen extends StatelessWidget {
                                                             AppColors.white)),
                                                 // TODO: FOLLOW
                                                 onPressed: () {
-                                                  if (UserService.currentUser ==
+                                                  if (userProvider
+                                                          .currentUserId ==
                                                       null) {
                                                     AppAlerts.login(
                                                         alertContext: context);

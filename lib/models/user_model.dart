@@ -7,7 +7,6 @@ class UserModel {
   Timestamp birthDate;
   String email;
   List<String> followers;
-  List<String> following;
   List<String> interests;
   String name;
   String phone;
@@ -19,7 +18,6 @@ class UserModel {
       required this.birthDate,
       required this.email,
       required this.followers,
-      required this.following,
       required this.interests,
       required this.name,
       required this.phone,
@@ -44,7 +42,6 @@ class UserModel {
         birthDate: birthDate ?? this.birthDate,
         email: email ?? this.email,
         followers: followers ?? this.followers,
-        following: following ?? this.following,
         interests: interests ?? this.interests,
         name: name ?? this.name,
         phone: phone ?? this.phone,
@@ -59,7 +56,6 @@ class UserModel {
       'birthDate': birthDate,
       'email': email,
       'followers': followers,
-      'following': following,
       'interests': interests,
       'name': name,
       'phone': phone,
@@ -76,7 +72,6 @@ class UserModel {
         birthDate: map['birthDate'] ?? Timestamp(0, 0),
         email: map['email'] ?? '',
         followers: List<String>.from(map['followers']),
-        following: List<String>.from(map['following']),
         interests: List<String>.from(map['interests']),
         name: map['name'] ?? '',
         phone: map['phone'] ?? '',
@@ -92,7 +87,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, birthDate: $birthDate, email: $email, followers: $followers, following: $following, interests: $interests, name: $name, phone: $phone, profilePic: $profilePic, showEventsAll: $showEventsAll, showEventsFollowers: $showEventsFollowers)';
+    return 'UserModel(id: $id, birthDate: $birthDate, email: $email, followers: $followers, interests: $interests, name: $name, phone: $phone, profilePic: $profilePic, showEventsAll: $showEventsAll, showEventsFollowers: $showEventsFollowers)';
   }
 
   @override
@@ -108,7 +103,6 @@ class UserModel {
         birthDate.hashCode ^
         email.hashCode ^
         followers.hashCode ^
-        following.hashCode ^
         interests.hashCode ^
         name.hashCode ^
         phone.hashCode ^

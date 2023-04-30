@@ -10,6 +10,7 @@ import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/providers/event_provider.dart';
+import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/images_util.dart';
 import 'package:beez/utils/map_style.dart';
@@ -198,20 +199,23 @@ class _MapScreenState extends State<MapScreen> {
                       right: 5,
                       bottom: 20,
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        GestureDetector(
-                            onTap: () {
-                              if (UserService.currentUser == null) {
-                                AppAlerts.login(alertContext: context);
-                              } else {
-                                GoRouter.of(context).pushNamed(FeedScreen.name);
-                              }
-                            },
-                            child: const Hexagon(
-                                child: Padding(
-                              padding: EdgeInsets.all(8),
-                              child: Icon(Icons.add_rounded,
-                                  size: 30, color: AppColors.black),
-                            )))
+                        Consumer<UserProvider>(
+                          builder: (_, userProvider, __) => GestureDetector(
+                              onTap: () {
+                                if (userProvider.currentUserId == null) {
+                                  AppAlerts.login(alertContext: context);
+                                } else {
+                                  GoRouter.of(context)
+                                      .pushNamed(FeedScreen.name);
+                                }
+                              },
+                              child: const Hexagon(
+                                  child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Icon(Icons.add_rounded,
+                                    size: 30, color: AppColors.black),
+                              ))),
+                        )
                       ]),
                     )
                   ],

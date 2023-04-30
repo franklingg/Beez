@@ -1,6 +1,9 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/presentation/user/login_screen.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class UserMenu extends StatelessWidget {
   const UserMenu({super.key});
@@ -50,12 +53,10 @@ class UserMenu extends StatelessWidget {
             "Compartilhar Perfil",
             // TODO: SHARE DEEP LINK
             () {}),
-        menuItemBuilder(
-            context,
-            Icons.logout,
-            "Sair",
-            // TODO: LOG OFF
-            () {}),
+        menuItemBuilder(context, Icons.logout, "Sair", () {
+          UserService.performLogout();
+          GoRouter.of(context).pushReplacementNamed(LoginScreen.name);
+        }),
       ],
       onChanged: (valueFunction) {
         if (valueFunction != null) valueFunction();

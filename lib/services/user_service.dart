@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:beez/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
   static Future<List<UserModel>> getUsers() async {
@@ -18,8 +18,6 @@ class UserService {
     }
   }
 
-  static User? get currentUser => FirebaseAuth.instance.currentUser;
-
   static Future<Position> getUserCurrentLocation() async {
     try {
       await Geolocator.requestPermission();
@@ -30,23 +28,46 @@ class UserService {
     }
   }
 
-  static StreamSubscription<QuerySnapshot<Map<String, dynamic>>>
-      subscribeToUsers(void Function(UserModel) action) {
+  static void subscribeToUsers(
+      {required void Function(UserModel) firestoreAction,
+      required void Function(String?) fireauthAction}) {
     final db = FirebaseFirestore.instance;
-    return db.collection('users').snapshots().listen((querySnapshot) {
+    final auth = FirebaseAuth.instance;
+    db.collection('users').snapshots().listen((querySnapshot) {
       for (final docChange in querySnapshot.docChanges) {
         final changedUser = UserModel.fromMap(docChange.doc);
-        action(changedUser);
+        firestoreAction(changedUser);
+      }
+    });
+    auth.idTokenChanges().listen((user) async {
+      if (user == null) {
+        UserService.clearPersistance();
+        fireauthAction(null);
+      } else {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('@beez/userToken', await user.getIdToken());
+        await prefs.setString(
+            '@beez/userLoginMethod', user.providerData.first.providerId);
+        fireauthAction(prefs.getString('@beez/userId'));
       }
     });
   }
 
-  static Future<String?> performNormalLogin(
-      String email, String password) async {
+  static clearPersistance() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('@beez/userToken');
+    await prefs.remove('@beez/userId');
+    await prefs.remove('@beez/userLoginMethod');
+  }
+
+  static Future<UserModel> performNormalLogin(
+      String email, String password, UserModel? userData) async {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      return "Login bem sucedido!";
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('@beez/userId', userData!.id);
+      return userData;
     } on FirebaseAuthException catch (error) {
       String message = "Login Falhou.";
       switch (error.code) {
@@ -57,10 +78,31 @@ class UserService {
           message = "Este usuário não existe.";
           break;
         case 'wrong-password':
-          message = "O e-mail inserido é inválido.";
           message = "A senha inserida é inválida.";
+          break;
+        default:
+          message = "Erro de Autenticação.";
       }
       return Future.error(message);
+    }
+  }
+
+  static Future<void> performLogout() {
+    return FirebaseAuth.instance.signOut();
+  }
+
+  static Future toggleFollowers(UserModel user, String followerId) async {
+    try {
+      final updatedUser = user.copyWith();
+      final db = FirebaseFirestore.instance;
+      if (updatedUser.followers.contains(followerId)) {
+        updatedUser.followers.remove(followerId);
+      } else {
+        updatedUser.followers.add(followerId);
+      }
+      await db.collection('users').doc(user.id).update(updatedUser.toMap());
+    } catch (e) {
+      return Future.error(e);
     }
   }
 }

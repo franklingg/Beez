@@ -52,7 +52,7 @@ class DateFilterItem extends StatelessWidget {
                     children: [
                       Expanded(
                           child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 9),
+                        padding: const EdgeInsets.symmetric(vertical: 9),
                         child: dateFilter.anyDate
                             ? Text(
                                 "XX/XX",

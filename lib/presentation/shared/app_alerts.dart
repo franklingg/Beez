@@ -6,13 +6,18 @@ import 'package:beez/presentation/shared/profile_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+// ignore: constant_identifier_names
+enum AlertType { LOGIN, USERLIST, ERROR }
+
 class AppAlerts {
+  late AlertType type;
   BuildContext alertContext;
   late String title;
   String? content;
   List<UserModel>? userList;
 
   AppAlerts.login({required this.alertContext}) {
+    type = AlertType.LOGIN;
     title = "Aviso do Sistema";
     content =
         "Para cadastrar e/ou interagir com eventos, além de outros usuários, é preciso fazer login no sistema. \nAcesse \"Perfil\" para fazer login.";
@@ -24,6 +29,14 @@ class AppAlerts {
       {required this.alertContext,
       required this.title,
       required List<UserModel> this.userList}) {
+    type = AlertType.USERLIST;
+    showAlert();
+  }
+
+  AppAlerts.error({required this.alertContext, required String errorMessage}) {
+    type = AlertType.ERROR;
+    title = "Erro";
+    content = errorMessage;
     showAlert();
   }
 
@@ -41,7 +54,13 @@ class AppAlerts {
                       padding: const EdgeInsets.only(left: 10),
                       child: Text(
                         title,
-                        style: Theme.of(alertContext).textTheme.titleLarge,
+                        style: Theme.of(alertContext)
+                            .textTheme
+                            .titleLarge!
+                            .copyWith(
+                                color: type == AlertType.ERROR
+                                    ? AppColors.error
+                                    : null),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -55,11 +74,8 @@ class AppAlerts {
                   )
                 ],
               ),
-              content: content != null
-                  ? Text(content!,
-                      style: Theme.of(alertContext).textTheme.bodyMedium,
-                      textAlign: TextAlign.justify)
-                  : SizedBox(
+              content: type == AlertType.USERLIST
+                  ? SizedBox(
                       height: min(50.0 * userList!.length, 270),
                       child: ListView.builder(
                           itemCount: userList!.length,
@@ -69,16 +85,28 @@ class AppAlerts {
                               const SizedBox(height: 10)
                             ]);
                           }),
-                    ),
-              actions: content != null
+                    )
+                  : Text(content!,
+                      style: Theme.of(alertContext).textTheme.bodyMedium,
+                      textAlign: TextAlign.justify),
+              actions: type != AlertType.USERLIST
                   ? [
                       TextButton(
                           onPressed: () {
                             GoRouter.of(alertContext).pop();
                           },
-                          child: const Text(
+                          style: ButtonStyle(
+                              padding: MaterialStatePropertyAll(
+                                  type == AlertType.ERROR
+                                      ? const EdgeInsets.only(top: 10)
+                                      : null)),
+                          child: Text(
                             "OK",
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: type == AlertType.ERROR
+                                    ? AppColors.error
+                                    : null),
                           ))
                     ]
                   : [],

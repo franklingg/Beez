@@ -5,7 +5,6 @@ import 'package:beez/presentation/shared/carousel_widget.dart';
 import 'package:beez/presentation/shared/profile_item_widget.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/providers/user_provider.dart';
-import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -65,12 +64,12 @@ class EventScreen extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 // TODO: CURRENT USER LIKE
-                                if (UserService.currentUser == null) {
+                                if (userProvider.currentUserId == null) {
                                   AppAlerts.login(alertContext: context);
                                 }
                               },
-                              // TODO: Verify currentUser liked
-                              child: false
+                              child: event.interested
+                                      .contains(userProvider.currentUserId)
                                   ? Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,

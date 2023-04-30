@@ -36,4 +36,31 @@ class EventService {
       }
     });
   }
+
+  static Future updateEvent(EventModel updatedEvent) async {
+    try {
+      final db = FirebaseFirestore.instance;
+      await db
+          .collection('events')
+          .doc(updatedEvent.id)
+          .update(updatedEvent.toMap());
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  static Future toggleLikeEvent(EventModel event, String info) async {
+    try {
+      final updatedEvent = event.copyWith();
+      final db = FirebaseFirestore.instance;
+      if (updatedEvent.interested.contains(info)) {
+        updatedEvent.interested.remove(info);
+      } else {
+        updatedEvent.interested.add(info);
+      }
+      await db.collection('events').doc(event.id).update(updatedEvent.toMap());
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
 }

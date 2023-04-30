@@ -1,4 +1,5 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/models/event_model.dart';
 import 'package:beez/presentation/feed/feed_card_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
@@ -6,6 +7,7 @@ import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/presentation/shared/top_bar_widget.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/providers/event_provider.dart';
+import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,6 +30,12 @@ class _FeedScreenState extends State<FeedScreen> {
     super.initState();
     UserService.getUserCurrentLocation().then((location) {
       setState(() {
+        Provider.of<EventProvider>(context, listen: false).addListener(() {
+          setState(() {});
+        });
+        Provider.of<UserProvider>(context, listen: false).addListener(() {
+          setState(() {});
+        });
         _userLocation = location;
         isLoading = false;
       });
@@ -73,20 +81,22 @@ class _FeedScreenState extends State<FeedScreen> {
                 right: 5,
                 bottom: 20,
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  GestureDetector(
-                      onTap: () {
-                        if (UserService.currentUser == null) {
-                          AppAlerts.login(alertContext: context);
-                        } else {
-                          GoRouter.of(context).pushNamed(FeedScreen.name);
-                        }
-                      },
-                      child: const Hexagon(
-                          child: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Icon(Icons.add_rounded,
-                            size: 30, color: AppColors.black),
-                      )))
+                  Consumer<UserProvider>(
+                    builder: (_, userProvider, __) => GestureDetector(
+                        onTap: () {
+                          if (userProvider.currentUserId == null) {
+                            AppAlerts.login(alertContext: context);
+                          } else {
+                            GoRouter.of(context).pushNamed(FeedScreen.name);
+                          }
+                        },
+                        child: const Hexagon(
+                            child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Icon(Icons.add_rounded,
+                              size: 30, color: AppColors.black),
+                        ))),
+                  )
                 ]),
               )
             ],

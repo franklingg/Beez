@@ -3,8 +3,9 @@ import 'package:beez/models/event_model.dart';
 import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/profile_item_widget.dart';
-import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
+import 'package:beez/services/event_service.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +20,8 @@ class FeedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(builder: (_, userProvider, __) {
       final creatorData = userProvider.getUser(data.creator);
+      final currentUserFollows =
+          creatorData.followers.contains(userProvider.currentUserId);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -27,20 +30,30 @@ class FeedCard extends StatelessWidget {
               Expanded(child: ProfileItem(user: creatorData, iconSize: 21)),
               GestureDetector(
                   onTap: () {
-                    // TODO: current user FOLLOW
-                    if (UserService.currentUser == null) {
+                    if (userProvider.currentUserId == null) {
                       AppAlerts.login(alertContext: context);
+                    } else {
+                      UserService.toggleFollowers(
+                          creatorData, userProvider.currentUserId!);
                     }
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                          color: AppColors.lightBlue,
+                          color: currentUserFollows
+                              ? AppColors.lightGreen
+                              : AppColors.lightBlue,
+                          border: currentUserFollows
+                              ? Border.all(color: AppColors.green)
+                              : Border.all(width: 0),
                           borderRadius: BorderRadius.circular(10)),
-                      child: const Text("Seguir",
+                      child: Text(currentUserFollows ? "Seguindo" : "Seguir",
                           style: TextStyle(
-                              color: AppColors.white, fontSize: 14)))),
+                              color: currentUserFollows
+                                  ? AppColors.green
+                                  : AppColors.white,
+                              fontSize: 14)))),
             ],
           ),
           const SizedBox(height: 10),
@@ -78,13 +91,14 @@ class FeedCard extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             GestureDetector(
               onTap: () {
-                // TODO: CURRENT USER LIKE
-                if (UserService.currentUser == null) {
+                if (userProvider.currentUserId == null) {
                   AppAlerts.login(alertContext: context);
+                } else {
+                  EventService.toggleLikeEvent(
+                      data, userProvider.currentUserId!);
                 }
               },
-              // TODO: Verify currentUser liked
-              child: false
+              child: data.interested.contains(userProvider.currentUserId)
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: const [
@@ -141,7 +155,7 @@ class FeedCard extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  data.interested.length >= 2
+                  data.interested.isNotEmpty
                       ? SizedBox(
                           width: 30,
                           child: Stack(
@@ -155,15 +169,18 @@ class FeedCard extends StatelessWidget {
                                       .profilePic),
                                 ),
                               ),
-                              Align(
-                                alignment: AlignmentDirectional.centerEnd,
-                                child: CircleAvatar(
-                                  radius: 10,
-                                  backgroundImage: NetworkImage(userProvider
-                                      .getUser(data.interested[1])
-                                      .profilePic),
-                                ),
-                              ),
+                              data.interested.length > 1
+                                  ? Align(
+                                      alignment: AlignmentDirectional.centerEnd,
+                                      child: CircleAvatar(
+                                        radius: 10,
+                                        backgroundImage: NetworkImage(
+                                            userProvider
+                                                .getUser(data.interested[1])
+                                                .profilePic),
+                                      ),
+                                    )
+                                  : const SizedBox(),
                             ],
                           ),
                         )

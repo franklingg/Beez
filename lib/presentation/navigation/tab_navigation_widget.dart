@@ -4,8 +4,10 @@ import 'package:beez/presentation/feed/feed_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/navigation/navigation_item_widget.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
+import 'package:beez/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class TabNavigation extends StatelessWidget {
   const TabNavigation({super.key});
@@ -19,36 +21,42 @@ class TabNavigation extends StatelessWidget {
       decoration: const BoxDecoration(color: AppColors.white, boxShadow: [
         BoxShadow(color: AppColors.shadow, offset: Offset(0, -1), blurRadius: 4)
       ]),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: () {
-              GoRouter.of(context).pushNamed(MapScreen.name);
-            },
-            child: NavigationItem(
-                icon: AppIcons.map,
-                text: "Mapa",
-                isSelected: currentLocation == "/${MapScreen.name}"),
-          ),
-          GestureDetector(
-              onTap: () {
-                GoRouter.of(context).pushNamed(FeedScreen.name);
-              },
-              child: NavigationItem(
-                  icon: Icons.rss_feed,
-                  text: "Feed",
-                  isSelected: currentLocation == "/${FeedScreen.name}")),
-          GestureDetector(
-              onTap: () {
-                GoRouter.of(context).pushNamed(ProfileScreen.name);
-              },
-              child: NavigationItem(
-                  icon: Icons.person_outline,
-                  text: "Perfil",
-                  isSelected: currentLocation == "/${ProfileScreen.name}")),
-        ],
+      child: Consumer<UserProvider>(
+        builder: (_, userProvider, __) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  GoRouter.of(context).pushNamed(MapScreen.name);
+                },
+                child: NavigationItem(
+                    icon: AppIcons.map,
+                    text: "Mapa",
+                    isSelected: currentLocation == "/${MapScreen.name}"),
+              ),
+              GestureDetector(
+                  onTap: () {
+                    GoRouter.of(context).pushNamed(FeedScreen.name);
+                  },
+                  child: NavigationItem(
+                      icon: Icons.rss_feed,
+                      text: "Feed",
+                      isSelected: currentLocation == "/${FeedScreen.name}")),
+              GestureDetector(
+                  onTap: () {
+                    GoRouter.of(context).pushNamed(ProfileScreen.name,
+                        queryParams: {'id': userProvider.currentUserId ?? ""});
+                  },
+                  child: NavigationItem(
+                      icon: Icons.person_outline,
+                      text: "Perfil",
+                      isSelected: currentLocation ==
+                          "/${ProfileScreen.name}?id=${userProvider.currentUserId ?? ''}")),
+            ],
+          );
+        },
       ),
     );
   }

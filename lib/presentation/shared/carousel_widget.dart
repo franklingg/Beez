@@ -130,9 +130,12 @@ class _CarouselState extends State<Carousel> {
                   ]),
                 ),
               ),
-              Align(
-                  alignment: const Alignment(0, 1.25),
-                  child: dots(widget.multipleEvents!.length, AppColors.black))
+              widget.multipleEvents!.length != 1
+                  ? Align(
+                      alignment: const Alignment(0, 1.25),
+                      child:
+                          dots(widget.multipleEvents!.length, AppColors.black))
+                  : const SizedBox()
             ],
           ),
         ),
@@ -146,9 +149,12 @@ class _CarouselState extends State<Carousel> {
                 alignment: Alignment.bottomCenter,
                 child: carousel(widget.singleEvent!.photos)),
             TopBar(),
-            Align(
-                alignment: Alignment.bottomCenter,
-                child: dots(widget.singleEvent!.photos.length, AppColors.white))
+            widget.singleEvent!.photos.length != 1
+                ? Align(
+                    alignment: Alignment.bottomCenter,
+                    child: dots(
+                        widget.singleEvent!.photos.length, AppColors.white))
+                : const SizedBox()
           ],
         ),
       );
