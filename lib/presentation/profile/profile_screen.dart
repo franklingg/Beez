@@ -5,6 +5,7 @@ import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/carousel_widget.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/providers/user_provider.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,12 +22,28 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
+  void initState() {
+    super.initState();
+    setState(() {
+      Provider.of<UserProvider>(context, listen: false).addListener(() {
+        setState(() {});
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(builder: (_, userProvider, __) {
       final userData = userProvider.getUser(widget.id!);
+      final currentUserFollows =
+          userData.followers.contains(userProvider.currentUserId);
       return Consumer<EventProvider>(builder: (_, eventProvider, __) {
+        final userFollowers = userProvider.allUsers
+            .where((user) => userData.followers.contains(user.id))
+            .toList();
         final userFollowing = userProvider.allUsers
-            .where((user) => user.followers.contains(widget.id));
+            .where((user) => user.followers.contains(widget.id))
+            .toList();
         final eventsUserCreated = eventProvider.allEvents
             .where((event) => event.creator == userData.id);
         final eventsUserParticipated = eventProvider.allEvents
@@ -80,18 +97,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SizedBox(height: 15),
                                 Row(children: [
-                                  Text(
-                                      "${userData.followers.length.toString()}\nSeguidores",
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (userFollowers.isNotEmpty) {
+                                        AppAlerts.userList(
+                                            alertContext: context,
+                                            title: "Seguidores",
+                                            userList: userFollowers);
+                                      }
+                                    },
+                                    child: Text(
+                                        "${userData.followers.length.toString()}\nSeguidores",
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall),
+                                  ),
                                   const SizedBox(width: 7),
-                                  Text("${userFollowing.length}\nSeguindo",
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
+                                  GestureDetector(
+                                      onTap: () {
+                                        if (userFollowing.isNotEmpty) {
+                                          AppAlerts.userList(
+                                              alertContext: context,
+                                              title: "Seguindo",
+                                              userList: userFollowing);
+                                        }
+                                      },
+                                      child: Text(
+                                          "${userFollowing.length}\nSeguindo",
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall)),
                                   const SizedBox(width: 7),
                                   Text("${eventsUserCreated.length}\nEventos",
                                       textAlign: TextAlign.center,
@@ -99,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           Theme.of(context).textTheme.bodySmall)
                                 ]),
                                 const SizedBox(height: 10),
-                                userProvider.currentUserId == widget.id
+                                userProvider.currentUserId != widget.id
                                     ? Row(
                                         children: [
                                           Expanded(
@@ -108,20 +145,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     backgroundColor:
                                                         MaterialStatePropertyAll(
                                                             AppColors.white)),
-                                                // TODO: FOLLOW
                                                 onPressed: () {
                                                   if (userProvider
                                                           .currentUserId ==
                                                       null) {
                                                     AppAlerts.login(
                                                         alertContext: context);
+                                                  } else {
+                                                    UserService.toggleFollowers(
+                                                        userData,
+                                                        userProvider
+                                                            .currentUserId!);
                                                   }
                                                 },
                                                 child: Text(
-                                                  "Seguir",
+                                                  currentUserFollows
+                                                      ? "Seguindo"
+                                                      : "Seguir",
                                                   style: Theme.of(context)
                                                       .textTheme
-                                                      .bodySmall,
+                                                      .bodySmall!
+                                                      .copyWith(
+                                                          color:
+                                                              currentUserFollows
+                                                                  ? AppColors
+                                                                      .green
+                                                                  : null),
                                                 )),
                                           ),
                                           const SizedBox(width: 8),

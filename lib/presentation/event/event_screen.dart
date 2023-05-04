@@ -5,14 +5,30 @@ import 'package:beez/presentation/shared/carousel_widget.dart';
 import 'package:beez/presentation/shared/profile_item_widget.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/providers/user_provider.dart';
+import 'package:beez/services/event_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class EventScreen extends StatelessWidget {
+class EventScreen extends StatefulWidget {
   static const String name = 'event';
   final String? id;
   const EventScreen({super.key, this.id});
+
+  @override
+  State<EventScreen> createState() => _EventScreenState();
+}
+
+class _EventScreenState extends State<EventScreen> {
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      Provider.of<EventProvider>(context, listen: false).addListener(() {
+        setState(() {});
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +37,7 @@ class EventScreen extends StatelessWidget {
         return Scaffold(
           body: Consumer<EventProvider>(
             builder: (_, eventProvider, __) {
-              final event = eventProvider.getEvent(id!);
+              final event = eventProvider.getEvent(widget.id!);
               return Column(children: [
                 Carousel(isMultipleEvent: false, singleEvent: event),
                 Padding(
@@ -63,9 +79,11 @@ class EventScreen extends StatelessWidget {
                           Row(children: [
                             GestureDetector(
                               onTap: () {
-                                // TODO: CURRENT USER LIKE
                                 if (userProvider.currentUserId == null) {
                                   AppAlerts.login(alertContext: context);
+                                } else {
+                                  EventService.toggleLikeEvent(
+                                      event, userProvider.currentUserId!);
                                 }
                               },
                               child: event.interested

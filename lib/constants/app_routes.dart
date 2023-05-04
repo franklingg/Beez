@@ -1,3 +1,4 @@
+import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
 import 'package:beez/presentation/user/login_screen.dart';
@@ -33,6 +34,10 @@ class AppRouter {
           name: EventScreen.name,
           builder: (context, state) =>
               EventScreen(id: state.queryParams['id'])),
+      GoRoute(
+          path: "/${CreateEventScreen.name}",
+          name: CreateEventScreen.name,
+          builder: (context, state) => const CreateEventScreen()),
       GoRoute(
           path: "/${LoginScreen.name}",
           name: LoginScreen.name,

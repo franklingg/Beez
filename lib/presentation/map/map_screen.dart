@@ -2,7 +2,7 @@ import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_icons.dart';
 import 'package:beez/models/event_model.dart';
 import 'package:beez/models/filter_map_model.dart';
-import 'package:beez/presentation/feed/feed_screen.dart';
+import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/map/app_marker.dart';
 import 'package:beez/presentation/map/map_filters_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
@@ -206,7 +206,7 @@ class _MapScreenState extends State<MapScreen> {
                                   AppAlerts.login(alertContext: context);
                                 } else {
                                   GoRouter.of(context)
-                                      .pushNamed(FeedScreen.name);
+                                      .pushNamed(CreateEventScreen.name);
                                 }
                               },
                               child: const Hexagon(

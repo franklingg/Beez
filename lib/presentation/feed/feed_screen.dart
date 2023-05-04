@@ -1,6 +1,8 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/event_model.dart';
+import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/feed/feed_card_widget.dart';
+import 'package:beez/presentation/feed/order_feed_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
@@ -24,7 +26,9 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   bool isLoading = true;
-  Position? _userLocation;
+  Position? userLocation;
+  OrderOption? order;
+
   @override
   void initState() {
     super.initState();
@@ -36,10 +40,42 @@ class _FeedScreenState extends State<FeedScreen> {
         Provider.of<UserProvider>(context, listen: false).addListener(() {
           setState(() {});
         });
-        _userLocation = location;
+        userLocation = location;
         isLoading = false;
       });
     });
+  }
+
+  List<EventModel> reorderEvents(
+      List<EventModel> events, List<String> followers) {
+    List<EventModel> reorderedEvents = [...events];
+    if (order == OrderOption.NEAREST_DISTANT ||
+        order == OrderOption.FARTHEST_DISTANT) {
+      reorderedEvents.sort((e1, e2) => Geolocator.distanceBetween(
+              e1.location.latitude,
+              e1.location.longitude,
+              e2.location.latitude,
+              e2.location.longitude)
+          .toInt());
+      if (order == OrderOption.FARTHEST_DISTANT) {
+        reorderedEvents = [...reorderedEvents.reversed];
+      }
+    } else if (order == OrderOption.CLOSEST_DATE ||
+        order == OrderOption.FURTHEST_DATE) {
+      reorderedEvents.sort((e1, e2) => e1.date.compareTo(e2.date));
+      if (order == OrderOption.FURTHEST_DATE) {
+        reorderedEvents = [...reorderedEvents.reversed];
+      }
+    } else if (order == OrderOption.LESS_COMMON_FOLLOWERS ||
+        order == OrderOption.MORE_COMMON_FOLLOWERS) {
+      reorderedEvents.sort((e1, e2) =>
+          e1.interested.toSet().difference(followers.toSet()).length -
+          e2.interested.toSet().difference(followers.toSet()).length);
+      if (order == OrderOption.LESS_COMMON_FOLLOWERS) {
+        reorderedEvents = [...reorderedEvents.reversed];
+      }
+    }
+    return reorderedEvents;
   }
 
   @override
@@ -47,62 +83,79 @@ class _FeedScreenState extends State<FeedScreen> {
     return SafeArea(
       child: Loading(
         isLoading: isLoading,
-        child: Scaffold(
-          appBar: TopBar(),
-          body: Stack(
-            children: [
-              Consumer<EventProvider>(builder: (_, eventProvider, __) {
-                final shownEvents = eventProvider.nextEvents;
-                return ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                    itemCount: shownEvents.length,
-                    prototypeItem: shownEvents.isNotEmpty
-                        ? FeedCard(data: shownEvents.first)
-                        : null,
-                    itemBuilder: ((context, index) {
-                      final eventData = shownEvents[index];
-                      double? distanceUserEvent;
-                      if (_userLocation != null) {
-                        distanceUserEvent = Geolocator.distanceBetween(
-                                _userLocation!.latitude,
-                                _userLocation!.longitude,
-                                eventData.location.latitude,
-                                eventData.location.longitude) /
-                            1000;
-                      }
-                      return FeedCard(
-                        data: eventData,
-                        distanceFromUser: distanceUserEvent,
-                      );
-                    }));
-              }),
-              Positioned(
-                right: 5,
-                bottom: 20,
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Consumer<UserProvider>(
-                    builder: (_, userProvider, __) => GestureDetector(
-                        onTap: () {
-                          if (userProvider.currentUserId == null) {
-                            AppAlerts.login(alertContext: context);
-                          } else {
-                            GoRouter.of(context).pushNamed(FeedScreen.name);
-                          }
-                        },
-                        child: const Hexagon(
-                            child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Icon(Icons.add_rounded,
-                              size: 30, color: AppColors.black),
-                        ))),
-                  )
-                ]),
-              )
-            ],
-          ),
-          bottomNavigationBar: const TabNavigation(),
-        ),
+        child: Consumer<UserProvider>(
+            builder: (_, userProvider, __) => Scaffold(
+                  appBar: TopBar(
+                      customAction: OrderFeed(
+                          selectedOption: order,
+                          showFollowersOption:
+                              userProvider.currentUserId != null,
+                          changeOrder: (newOrder) {
+                            setState(() {
+                              order = newOrder;
+                            });
+                          })),
+                  body: Stack(
+                    children: [
+                      Consumer<EventProvider>(builder: (_, eventProvider, __) {
+                        List<String> userFollowers =
+                            userProvider.currentUserId != null
+                                ? userProvider
+                                    .getUser(userProvider.currentUserId!)
+                                    .followers
+                                : [];
+                        final shownEvents = reorderEvents(
+                            eventProvider.nextEvents, userFollowers);
+                        return ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 8),
+                            itemCount: shownEvents.length,
+                            prototypeItem: shownEvents.isNotEmpty
+                                ? FeedCard(data: shownEvents.first)
+                                : null,
+                            itemBuilder: ((context, index) {
+                              final eventData = shownEvents[index];
+                              double? distanceUserEvent;
+                              if (userLocation != null) {
+                                distanceUserEvent = Geolocator.distanceBetween(
+                                        userLocation!.latitude,
+                                        userLocation!.longitude,
+                                        eventData.location.latitude,
+                                        eventData.location.longitude) /
+                                    1000;
+                              }
+                              return FeedCard(
+                                data: eventData,
+                                distanceFromUser: distanceUserEvent,
+                              );
+                            }));
+                      }),
+                      Positioned(
+                        right: 5,
+                        bottom: 20,
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                          GestureDetector(
+                              onTap: () {
+                                if (userProvider.currentUserId == null) {
+                                  AppAlerts.login(alertContext: context);
+                                } else {
+                                  GoRouter.of(context)
+                                      .pushNamed(CreateEventScreen.name);
+                                }
+                              },
+                              child: const Hexagon(
+                                  child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Icon(Icons.add_rounded,
+                                    size: 30, color: AppColors.black),
+                              ))),
+                        ]),
+                      )
+                    ],
+                  ),
+                  bottomNavigationBar: const TabNavigation(),
+                )),
       ),
     );
   }

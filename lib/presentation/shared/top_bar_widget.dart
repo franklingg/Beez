@@ -29,11 +29,8 @@ class TopBar extends StatelessWidget implements PreferredSize {
               onTap: () => GoRouter.of(context).pop(),
               child: const Icon(Icons.arrow_back, size: 25),
             ),
-            Expanded(
-                child: Padding(
-                    padding:
-                        EdgeInsets.only(right: customAction != null ? 0 : 10),
-                    child: SvgPicture.asset(AppIcons.logoFull, height: 32)))
+            Expanded(child: SvgPicture.asset(AppIcons.logoFull, height: 32)),
+            customAction ?? const SizedBox()
           ],
         ),
       ),
