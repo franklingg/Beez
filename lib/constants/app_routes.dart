@@ -1,10 +1,11 @@
 import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
-import 'package:beez/presentation/user/login_screen.dart';
+import 'package:beez/presentation/login/login_screen.dart';
+import 'package:beez/presentation/login/forgot_password_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
-import 'package:beez/presentation/user/registration_screen.dart';
+import 'package:beez/presentation/register/registration_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
@@ -42,6 +43,10 @@ class AppRouter {
           path: "/${LoginScreen.name}",
           name: LoginScreen.name,
           builder: (context, state) => const LoginScreen()),
+      GoRoute(
+          path: "/${ForgotPasswordScreen.name}",
+          name: ForgotPasswordScreen.name,
+          builder: (context, state) => const ForgotPasswordScreen()),
       GoRoute(
           path: "/${RegistrationScreen.name}",
           name: RegistrationScreen.name,

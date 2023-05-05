@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // ignore: constant_identifier_names
-enum AlertType { LOGIN, USERLIST, ERROR }
+enum AlertType { LOGIN, USERLIST, ERROR, INFO }
 
 class AppAlerts {
   late AlertType type;
@@ -15,6 +15,7 @@ class AppAlerts {
   late String title;
   String? content;
   List<UserModel>? userList;
+  Function()? onCloseAlert;
 
   AppAlerts.login({required this.alertContext}) {
     type = AlertType.LOGIN;
@@ -38,6 +39,35 @@ class AppAlerts {
     title = "Erro";
     content = errorMessage;
     showAlert();
+  }
+
+  AppAlerts.info(
+      {required this.alertContext,
+      required this.title,
+      required String infoMessage,
+      this.onCloseAlert}) {
+    type = AlertType.INFO;
+    content = infoMessage;
+    showAlert();
+  }
+
+  AppAlerts.datePicker(
+      {required this.alertContext,
+      DateTime? initialDate,
+      required Function(DateTime) onChangedDate,
+      bool futureDates = true}) {
+    title = "";
+    showDatePicker(
+            locale: const Locale('pt', 'BR'),
+            context: alertContext,
+            initialDate: initialDate ?? DateTime.now(),
+            firstDate: futureDates ? DateTime.now() : DateTime(1900),
+            lastDate: futureDates ? DateTime(2101) : DateTime.now())
+        .then((pickedDate) {
+      if (pickedDate != null) {
+        onChangedDate(pickedDate);
+      }
+    });
   }
 
   Future showAlert() {
@@ -93,7 +123,11 @@ class AppAlerts {
                   ? [
                       TextButton(
                           onPressed: () {
-                            GoRouter.of(alertContext).pop();
+                            if (onCloseAlert != null) {
+                              onCloseAlert!();
+                            } else {
+                              GoRouter.of(alertContext).pop();
+                            }
                           },
                           style: ButtonStyle(
                               padding: MaterialStatePropertyAll(

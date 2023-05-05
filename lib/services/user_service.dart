@@ -91,6 +91,23 @@ class UserService {
     return FirebaseAuth.instance.signOut();
   }
 
+  static Future sendPasswordRecovery(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (error) {
+      String message = "Login Falhou.";
+      switch (error.code) {
+        case 'invalid-email':
+        case 'user-not-found':
+          message = "Este usuário não existe.";
+          break;
+        default:
+          message = "Erro de Autenticação.";
+      }
+      return Future.error(message);
+    }
+  }
+
   static Future toggleFollowers(UserModel user, String followerId) async {
     try {
       final updatedUser = user.copyWith();

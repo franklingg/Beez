@@ -44,9 +44,4 @@ class UserProvider extends ChangeNotifier {
     final userIdx = _allUsers.indexWhere((user) => user.email == email);
     return (userIdx != -1 ? _allUsers[userIdx] : null);
   }
-
-  // Future<UserModel?> get getCurrentUserData async {
-  //   final currentUserId = await UserService.currentUserId;
-  //   return currentUserId != null ? getUser(currentUserId) : null;
-  // }
 }

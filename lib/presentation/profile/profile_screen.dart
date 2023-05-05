@@ -67,9 +67,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child:
                               const Icon(Icons.arrow_back_outlined, size: 25),
                         ),
-                        userProvider.currentUserId == widget.id
-                            ? const UserMenu()
-                            : const SizedBox()
+                        if (userProvider.currentUserId == widget.id)
+                          const UserMenu()
                       ],
                     ),
                     Padding(
@@ -136,66 +135,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           Theme.of(context).textTheme.bodySmall)
                                 ]),
                                 const SizedBox(height: 10),
-                                userProvider.currentUserId != widget.id
-                                    ? Row(
-                                        children: [
-                                          Expanded(
-                                            child: ElevatedButton(
-                                                style: const ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStatePropertyAll(
-                                                            AppColors.white)),
-                                                onPressed: () {
-                                                  if (userProvider
-                                                          .currentUserId ==
-                                                      null) {
-                                                    AppAlerts.login(
-                                                        alertContext: context);
-                                                  } else {
-                                                    UserService.toggleFollowers(
-                                                        userData,
-                                                        userProvider
-                                                            .currentUserId!);
-                                                  }
-                                                },
-                                                child: Text(
-                                                  currentUserFollows
-                                                      ? "Seguindo"
-                                                      : "Seguir",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall!
-                                                      .copyWith(
-                                                          color:
-                                                              currentUserFollows
-                                                                  ? AppColors
-                                                                      .green
-                                                                  : null),
-                                                )),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          ElevatedButton(
+                                if (userProvider.currentUserId != widget.id)
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
                                             style: const ButtonStyle(
-                                                padding:
-                                                    MaterialStatePropertyAll(
-                                                        EdgeInsets.zero),
-                                                minimumSize:
-                                                    MaterialStatePropertyAll(
-                                                        Size(35, 35)),
                                                 backgroundColor:
                                                     MaterialStatePropertyAll(
                                                         AppColors.white)),
-                                            //TODO: SHARE DEEP LINK
-                                            onPressed: () {},
-                                            child: const Icon(
-                                              Icons.share,
-                                              size: 22,
-                                              color: AppColors.black,
-                                            ),
-                                          )
-                                        ],
+                                            onPressed: () {
+                                              if (userProvider.currentUserId ==
+                                                  null) {
+                                                AppAlerts.login(
+                                                    alertContext: context);
+                                              } else {
+                                                UserService.toggleFollowers(
+                                                    userData,
+                                                    userProvider
+                                                        .currentUserId!);
+                                              }
+                                            },
+                                            child: Text(
+                                              currentUserFollows
+                                                  ? "Seguindo"
+                                                  : "Seguir",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall!
+                                                  .copyWith(
+                                                      color: currentUserFollows
+                                                          ? AppColors.green
+                                                          : null),
+                                            )),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      ElevatedButton(
+                                        style: const ButtonStyle(
+                                            padding: MaterialStatePropertyAll(
+                                                EdgeInsets.zero),
+                                            minimumSize:
+                                                MaterialStatePropertyAll(
+                                                    Size(35, 35)),
+                                            backgroundColor:
+                                                MaterialStatePropertyAll(
+                                                    AppColors.white)),
+                                        //TODO: SHARE DEEP LINK
+                                        onPressed: () {},
+                                        child: const Icon(
+                                          Icons.share,
+                                          size: 22,
+                                          color: AppColors.black,
+                                        ),
                                       )
-                                    : const SizedBox()
+                                    ],
+                                  )
                               ]))
                         ]))
                   ])),

@@ -169,18 +169,16 @@ class FeedCard extends StatelessWidget {
                                       .profilePic),
                                 ),
                               ),
-                              data.interested.length > 1
-                                  ? Align(
-                                      alignment: AlignmentDirectional.centerEnd,
-                                      child: CircleAvatar(
-                                        radius: 10,
-                                        backgroundImage: NetworkImage(
-                                            userProvider
-                                                .getUser(data.interested[1])
-                                                .profilePic),
-                                      ),
-                                    )
-                                  : const SizedBox(),
+                              if (data.interested.length > 1)
+                                Align(
+                                  alignment: AlignmentDirectional.centerEnd,
+                                  child: CircleAvatar(
+                                    radius: 10,
+                                    backgroundImage: NetworkImage(userProvider
+                                        .getUser(data.interested[1])
+                                        .profilePic),
+                                  ),
+                                ),
                             ],
                           ),
                         )

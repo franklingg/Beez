@@ -1,10 +1,12 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/constants/app_locales.dart';
 import 'package:beez/constants/app_routes.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/services/event_service.dart';
 import 'package:beez/services/firebase_options.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 // ignore: depend_on_referenced_packages
@@ -54,8 +56,13 @@ class MyApp extends StatelessWidget {
               })
         ],
         child: MaterialApp.router(
-            localizationsDelegates: GlobalMaterialLocalizations.delegates,
-            supportedLocales: const [Locale('pt', 'BR')],
+            localizationsDelegates: const [
+              CountryLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate
+            ],
+            supportedLocales: AppLocales.all,
+            locale: AppLocales.defaultLocale,
             theme: ThemeData(
               primaryColor: AppColors.yellow,
               textTheme: GoogleFonts.notoSansTextTheme(const TextTheme(

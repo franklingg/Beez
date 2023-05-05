@@ -1,10 +1,11 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_images.dart';
 import 'package:beez/models/user_model.dart';
+import 'package:beez/presentation/login/forgot_password_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
-import 'package:beez/presentation/user/registration_screen.dart';
-import 'package:beez/presentation/user/signin_items_widget.dart';
+import 'package:beez/presentation/register/registration_screen.dart';
+import 'package:beez/presentation/login/signin_items_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
@@ -31,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String currentEmail = "";
   String currentPassword = "";
 
-  void submitLogin(UserModel? possibleUser) {
+  void submitForm(UserModel? possibleUser) {
     if (_formKey.currentState!.validate()) {
       setState(() {
         processingForm = true;
@@ -116,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 10),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to Forgot password
+                      GoRouter.of(context).pushNamed(ForgotPasswordScreen.name);
                     },
                     child: Text("Esqueceu a senha?",
                         textAlign: TextAlign.center,
@@ -125,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Consumer<UserProvider>(
                     builder: (_, userProvider, __) => ElevatedButton(
                         onPressed: () =>
-                            submitLogin(userProvider.findUser(currentEmail)),
+                            submitForm(userProvider.findUser(currentEmail)),
                         style: const ButtonStyle(
                             padding: MaterialStatePropertyAll(
                                 EdgeInsets.symmetric(vertical: 10)),
