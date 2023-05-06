@@ -1,11 +1,14 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_formatter/formatters/masked_input_formatter.dart';
 import 'package:intl/intl.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -36,16 +39,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         processingForm = true;
       });
       _formKey.currentState!.save();
-      //   UserService.performNormalLogin(
-      //           currentEmail, currentPassword, possibleUser)
-      //       .whenComplete(() => setState(() {
-      //             processingForm = false;
-      //           }))
-      //       .then((user) {
-      //     GoRouter.of(context).pushNamed(MapScreen.name);
-      //   }).onError((String errorMsg, _) {
-      //     AppAlerts.error(alertContext: context, errorMessage: errorMsg);
-      //   });
+      final userData = UserModel.initialize(currentName, currentEmail,
+          currentPassword, currentPhone, currentBirthDate!);
+      // UserService.registerNewUser(userData)
+      //     .whenComplete(() => setState(() {
+      //           processingForm = false;
+      //         }))
+      //     .then((user) {
+      //   // GoRouter.of(context).pushNamed(MapScreen.name);
+      // }).onError((String errorMsg, _) {
+      //   AppAlerts.error(alertContext: context, errorMessage: errorMsg);
+      // });
     }
   }
 
@@ -98,6 +102,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           child: TextFormField(
                             controller: _birthTextController,
                             readOnly: true,
+                            validator: (value) {
+                              if (currentBirthDate == null)
+                                return "Data de Nascimento é obrigatória.";
+                            },
                             style: const TextStyle(
                                 color: AppColors.brown, fontSize: 14),
                             decoration:
@@ -134,6 +142,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               final c2 = b.dialCode?.replaceFirst(r'+', '');
                               return int.parse(c1!) - int.parse(c2!);
                             },
+                            textStyle: const TextStyle(
+                                fontSize: 15, color: AppColors.black),
+                            flagWidth: 30,
                             flagDecoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10)),
                             onChanged: (newValue) {
@@ -153,6 +164,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               onSaved: (value) => setState(() {
                                 currentPhone = value ?? currentPhone;
                               }),
+                              autocorrect: false,
+                              inputFormatters: [
+                                MaskedInputFormatter('(##) #####-####')
+                              ],
+                              validator: (value) => value!.validPhone(),
                               keyboardType: TextInputType.phone,
                               style: Theme.of(context)
                                   .textTheme
@@ -160,7 +176,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   .merge(const TextStyle(
                                       decoration: TextDecoration.none)),
                               decoration: AppField.inputDecoration(
-                                  hint: "(XX) XXXX-XXXX"),
+                                  hint: "(XX) XXXXX-XXXX"),
                             ),
                           )
                         ],
@@ -172,6 +188,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         validator: (value) => value!.validPassword(),
                         onSaved: (value) => setState(() {
                           currentPassword = value ?? currentPassword;
+                        }),
+                        onChanged: (value) => setState(() {
+                          currentPassword = value;
                         }),
                         decoration: AppField.inputDecoration(
                             hint: "Senha",
@@ -198,7 +217,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   AppField(
                       label: "Confirmação de Senha",
                       child: TextFormField(
-                        validator: (value) => value!.validPassword(),
+                        validator: (value) => value != currentPassword
+                            ? "As senhas não conferem."
+                            : null,
                         onSaved: (value) => setState(() {
                           currentPasswordConfirmation =
                               value ?? currentPasswordConfirmation;
@@ -224,6 +245,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         style: Theme.of(context).textTheme.bodyMedium!.merge(
                             const TextStyle(decoration: TextDecoration.none)),
                       )),
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                      onPressed: submitForm,
+                      style: const ButtonStyle(
+                        backgroundColor:
+                            MaterialStatePropertyAll(AppColors.darkYellow),
+                      ),
+                      child: const Text(
+                        "Prosseguir",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ))
                 ],
               ),
             ),

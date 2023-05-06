@@ -1,3 +1,5 @@
+import 'package:flutter_multi_formatter/formatters/masked_input_formatter.dart';
+
 extension StringCasingExtension on String {
   String toCapitalized() =>
       length > 0 ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
@@ -32,5 +34,11 @@ extension FormValidations on String {
     return RegExp(r'^[a-zA-Z]{3,}( {1,2}[a-zA-Z]{3,}){2,}$').hasMatch(this)
         ? null
         : "Nome Inválido. É obrigatório informar pelo menos um nome e sobrenome.";
+  }
+
+  String? validPhone() {
+    return RegExp(r'\(\d{2}\)\s\d{5}-\d{4}').hasMatch(this)
+        ? null
+        : "Telefone inválido.";
   }
 }

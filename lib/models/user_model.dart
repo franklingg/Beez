@@ -85,6 +85,21 @@ class UserModel {
   factory UserModel.fromJson(String source) =>
       UserModel.fromMap(json.decode(source));
 
+  factory UserModel.initialize(String name, String email, String password,
+      String phone, DateTime birthDate) {
+    return UserModel(
+        id: 'not_set',
+        birthDate: Timestamp.fromDate(birthDate),
+        email: email,
+        followers: [],
+        interests: [],
+        name: name,
+        phone: phone,
+        profilePic: '',
+        showEventsAll: true,
+        showEventsFollowers: true);
+  }
+
   @override
   String toString() {
     return 'UserModel(id: $id, birthDate: $birthDate, email: $email, followers: $followers, interests: $interests, name: $name, phone: $phone, profilePic: $profilePic, showEventsAll: $showEventsAll, showEventsFollowers: $showEventsFollowers)';

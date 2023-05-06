@@ -91,6 +91,32 @@ class UserService {
     return FirebaseAuth.instance.signOut();
   }
 
+  // static Future<UserModel> registerNewUser(UserModel? newUser) async {
+  //   try {
+  //     // await FirebaseAuth.instance
+  //     //     .signInWithEmailAndPassword(email: email, password: password);
+  //     // SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     // await prefs.setString('@beez/userId', userData!.id);
+  //     // return userData;
+  //   } on FirebaseAuthException catch (error) {
+  //     String message = "Login Falhou.";
+  //     switch (error.code) {
+  //       case 'invalid-email':
+  //         message = "O e-mail inserido é inválido.";
+  //         break;
+  //       case 'user-not-found':
+  //         message = "Este usuário não existe.";
+  //         break;
+  //       case 'wrong-password':
+  //         message = "A senha inserida é inválida.";
+  //         break;
+  //       default:
+  //         message = "Erro de Autenticação.";
+  //     }
+  //     return Future.error(message);
+  //   }
+  // }
+
   static Future sendPasswordRecovery(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
