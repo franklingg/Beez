@@ -1,3 +1,4 @@
+import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
@@ -5,12 +6,14 @@ import 'package:beez/presentation/login/login_screen.dart';
 import 'package:beez/presentation/login/forgot_password_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
+import 'package:beez/presentation/register/phone_confirmation_screen.dart';
 import 'package:beez/presentation/register/registration_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: "/${MapScreen.name}",
+    initialLocation: "/${PhoneConfirmationScreen.name}",
+    initialExtra: UserModel.initialize('', '', '', DateTime.now()),
     routes: [
       GoRoute(
           path: "/${MapScreen.name}",
@@ -50,7 +53,14 @@ class AppRouter {
       GoRoute(
           path: "/${RegistrationScreen.name}",
           name: RegistrationScreen.name,
-          builder: (context, state) => const RegistrationScreen())
+          builder: (context, state) => const RegistrationScreen()),
+      GoRoute(
+          path: "/${PhoneConfirmationScreen.name}",
+          name: PhoneConfirmationScreen.name,
+          builder: (context, state) {
+            UserModel userData = state.extra as UserModel;
+            return PhoneConfirmationScreen(userData: userData);
+          })
     ],
   );
 }

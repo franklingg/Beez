@@ -9,7 +9,10 @@ import 'package:beez/utils/extensions.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/formatters/masked_input_formatter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
+import 'phone_confirmation_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String name = 'registration';
@@ -32,6 +35,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String currentPasswordConfirmation = "";
 
   final TextEditingController _birthTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
 
   void submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -39,17 +43,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         processingForm = true;
       });
       _formKey.currentState!.save();
-      final userData = UserModel.initialize(currentName, currentEmail,
-          currentPassword, currentPhone, currentBirthDate!);
-      // UserService.registerNewUser(userData)
-      //     .whenComplete(() => setState(() {
-      //           processingForm = false;
-      //         }))
-      //     .then((user) {
-      //   // GoRouter.of(context).pushNamed(MapScreen.name);
-      // }).onError((String errorMsg, _) {
-      //   AppAlerts.error(alertContext: context, errorMessage: errorMsg);
-      // });
+      final userData = UserModel.initialize(
+          currentName, currentEmail, currentPhone, currentBirthDate!);
+      UserService.registerNewUser(userData, currentPassword).then((user) {
+        setState(() {
+          processingForm = false;
+        });
+        GoRouter.of(context)
+            .pushNamed(PhoneConfirmationScreen.name, extra: user);
+      }).onError((String errorMsg, _) {
+        setState(() {
+          processingForm = false;
+        });
+        AppAlerts.error(alertContext: context, errorMessage: errorMsg);
+      });
     }
   }
 
@@ -185,6 +192,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   AppField(
                       label: "Senha",
                       child: TextFormField(
+                        controller: _passwordTextController,
                         validator: (value) => value!.validPassword(),
                         onSaved: (value) => setState(() {
                           currentPassword = value ?? currentPassword;
@@ -217,9 +225,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   AppField(
                       label: "Confirmação de Senha",
                       child: TextFormField(
-                        validator: (value) => value != currentPassword
-                            ? "As senhas não conferem."
-                            : null,
+                        validator: (value) =>
+                            _passwordTextController.text != value
+                                ? "As senhas não conferem."
+                                : null,
                         onSaved: (value) => setState(() {
                           currentPasswordConfirmation =
                               value ?? currentPasswordConfirmation;

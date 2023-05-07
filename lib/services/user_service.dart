@@ -69,7 +69,7 @@ class UserService {
       await prefs.setString('@beez/userId', userData!.id);
       return userData;
     } on FirebaseAuthException catch (error) {
-      String message = "Login Falhou.";
+      String message = "";
       switch (error.code) {
         case 'invalid-email':
           message = "O e-mail inserido é inválido.";
@@ -91,31 +91,32 @@ class UserService {
     return FirebaseAuth.instance.signOut();
   }
 
-  // static Future<UserModel> registerNewUser(UserModel? newUser) async {
-  //   try {
-  //     // await FirebaseAuth.instance
-  //     //     .signInWithEmailAndPassword(email: email, password: password);
-  //     // SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     // await prefs.setString('@beez/userId', userData!.id);
-  //     // return userData;
-  //   } on FirebaseAuthException catch (error) {
-  //     String message = "Login Falhou.";
-  //     switch (error.code) {
-  //       case 'invalid-email':
-  //         message = "O e-mail inserido é inválido.";
-  //         break;
-  //       case 'user-not-found':
-  //         message = "Este usuário não existe.";
-  //         break;
-  //       case 'wrong-password':
-  //         message = "A senha inserida é inválida.";
-  //         break;
-  //       default:
-  //         message = "Erro de Autenticação.";
-  //     }
-  //     return Future.error(message);
-  //   }
-  // }
+  static Future<UserModel> registerNewUser(
+      UserModel newUser, String password) async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: newUser.email, password: password);
+      final usersCollection = FirebaseFirestore.instance.collection('users');
+      final userRef = await usersCollection.add(newUser.toMap());
+      return newUser.copyWith(id: userRef.id);
+    } on FirebaseAuthException catch (error) {
+      String message = "";
+      switch (error.code) {
+        case 'invalid-email':
+          message = "O e-mail inserido é inválido.";
+          break;
+        case 'email-already-in-use':
+          message = "O email inserido já está em uso.";
+          break;
+        case 'weak-password':
+          message = "A senha inserida é fraca demais.";
+          break;
+        default:
+          message = "Erro de Autenticação.";
+      }
+      return Future.error(message);
+    }
+  }
 
   static Future sendPasswordRecovery(String email) async {
     try {

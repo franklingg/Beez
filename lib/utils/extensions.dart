@@ -31,7 +31,7 @@ extension FormValidations on String {
   }
 
   String? validName() {
-    return RegExp(r'^[a-zA-Z]{3,}( {1,2}[a-zA-Z]{3,}){2,}$').hasMatch(this)
+    return RegExp(r'^[a-zA-Z]{1,}( {1,2}[a-zA-Z]{1,}){1,}$').hasMatch(this)
         ? null
         : "Nome Inválido. É obrigatório informar pelo menos um nome e sobrenome.";
   }
