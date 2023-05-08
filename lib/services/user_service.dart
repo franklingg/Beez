@@ -135,6 +135,50 @@ class UserService {
     }
   }
 
+  static Future<void> sendPhoneVerification(
+      {required UserModel userInfo,
+      required Function(FirebaseAuthException) onError,
+      required Function(String, int?) onSent,
+      required Function(String) onTimeout,
+      required int? resendToken}) async {
+    final auth = FirebaseAuth.instance;
+    await auth.verifyPhoneNumber(
+        phoneNumber: userInfo.phone,
+        verificationCompleted: (credential) async {
+          await auth.signInWithCredential(credential);
+        },
+        timeout: const Duration(minutes: 2),
+        forceResendingToken: resendToken,
+        verificationFailed: onError,
+        codeSent: onSent,
+        codeAutoRetrievalTimeout: onTimeout);
+  }
+
+  static Future<UserCredential> verifyOtpCode(
+      String verificationId, String otpCode) async {
+    try {
+      final phoneCredential = await FirebaseAuth.instance.signInWithCredential(
+          PhoneAuthProvider.credential(
+              verificationId: verificationId, smsCode: otpCode));
+    } on FirebaseAuthException catch (error) {
+      String message = "";
+      switch (error.code) {
+        case 'invalid-email':
+          message = "O e-mail inserido é inválido.";
+          break;
+        case 'email-already-in-use':
+          message = "O email inserido já está em uso.";
+          break;
+        case 'weak-password':
+          message = "A senha inserida é fraca demais.";
+          break;
+        default:
+          message = "Erro de Autenticação.";
+      }
+      return Future.error(message);
+    }
+  }
+
   static Future toggleFollowers(UserModel user, String followerId) async {
     try {
       final updatedUser = user.copyWith();

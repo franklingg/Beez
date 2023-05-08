@@ -29,7 +29,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String currentName = "";
   String currentEmail = "";
   DateTime? currentBirthDate;
-  CountryCode? currentCountryCode;
+  CountryCode currentCountryCode = CountryCode.fromDialCode('+55');
   String currentPhone = "";
   String currentPassword = "";
   String currentPasswordConfirmation = "";
@@ -43,18 +43,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         processingForm = true;
       });
       _formKey.currentState!.save();
-      final userData = UserModel.initialize(
-          currentName, currentEmail, currentPhone, currentBirthDate!);
-      UserService.registerNewUser(userData, currentPassword).then((user) {
+      final userData = UserModel.initialize(currentName, currentEmail,
+          "${currentCountryCode.dialCode} $currentPhone", currentBirthDate!);
+      UserService.registerNewUser(userData, currentPassword).whenComplete(() {
         setState(() {
           processingForm = false;
         });
+      }).then((user) {
         GoRouter.of(context)
             .pushNamed(PhoneConfirmationScreen.name, extra: user);
       }).onError((String errorMsg, _) {
-        setState(() {
-          processingForm = false;
-        });
         AppAlerts.error(alertContext: context, errorMessage: errorMsg);
       });
     }
@@ -82,6 +80,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         onSaved: (value) => setState(() {
                           currentName = value ?? currentName;
                         }),
+                        initialValue: currentName,
                         decoration:
                             AppField.inputDecoration(hint: "Nome Completo"),
                         validator: (value) => value!.validName(),
@@ -95,6 +94,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         onSaved: (value) => setState(() {
                           currentEmail = value ?? currentEmail;
                         }),
+                        initialValue: currentEmail,
                         decoration: AppField.inputDecoration(
                             hint: "exemplo@exemplo.com"),
                         validator: (value) => value!.validEmail(),
@@ -110,8 +110,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             controller: _birthTextController,
                             readOnly: true,
                             validator: (value) {
-                              if (currentBirthDate == null)
+                              if (currentBirthDate == null) {
                                 return "Data de Nascimento é obrigatória.";
+                              }
                             },
                             style: const TextStyle(
                                 color: AppColors.brown, fontSize: 14),
@@ -171,6 +172,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               onSaved: (value) => setState(() {
                                 currentPhone = value ?? currentPhone;
                               }),
+                              initialValue: currentPhone,
                               autocorrect: false,
                               inputFormatters: [
                                 MaskedInputFormatter('(##) #####-####')
@@ -225,6 +227,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   AppField(
                       label: "Confirmação de Senha",
                       child: TextFormField(
+                        initialValue: currentPasswordConfirmation,
                         validator: (value) =>
                             _passwordTextController.text != value
                                 ? "As senhas não conferem."

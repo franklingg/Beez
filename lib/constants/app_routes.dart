@@ -12,8 +12,9 @@ import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: "/${PhoneConfirmationScreen.name}",
-    initialExtra: UserModel.initialize('', '', '', DateTime.now()),
+    initialLocation: "/${RegistrationScreen.name}",
+    initialExtra:
+        UserModel.initialize('', '', '+55 (83) 98165-9022', DateTime.now()),
     routes: [
       GoRoute(
           path: "/${MapScreen.name}",

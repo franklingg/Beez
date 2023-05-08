@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/user_model.dart';
-import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/register/otp_inserter_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
+import 'package:beez/services/user_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class PhoneConfirmationScreen extends StatefulWidget {
   static const String name = 'phone_confirmation';
@@ -25,6 +24,42 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
   bool processing = false;
   String? currentCode;
   int? resendDurationLeft;
+  String verificationId = "";
+  int? resendToken;
+
+  @override
+  void initState() {
+    super.initState();
+    triggerPhoneVerification();
+  }
+
+  void triggerPhoneVerification() {
+    setState(() {
+      processing = true;
+    });
+    UserService.sendPhoneVerification(
+        userInfo: widget.userData!,
+        onError: (error) => AppAlerts.error(
+            alertContext: context,
+            errorMessage: "Verificação Falhou. Tente novamente."),
+        onSent: (verification, token) {
+          setState(() {
+            verificationId = verification;
+            resendToken = token;
+          });
+          setState(() {
+            processing = false;
+          });
+          setNewCodeTimer();
+        },
+        resendToken: resendToken,
+        onTimeout: (verification) {
+          setState(() {
+            verificationId = verification;
+            resendToken = null;
+          });
+        });
+  }
 
   void submitForm() {
     if (currentCode == null) {
@@ -35,18 +70,35 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
       setState(() {
         processing = true;
       });
-      // a.then((user) {
-      //   setState(() {
-      //     processing = false;
-      //   });
-      //   GoRouter.of(context).pushNamed(MapScreen.name);
-      // }).onError((String errorMsg, _) {
-      //   setState(() {
-      //     processing = false;
-      //   });
-      //   AppAlerts.error(alertContext: context, errorMessage: errorMsg);
-      // });
+      UserService.verifyOtpCode(verificationId, currentCode!)
+          .whenComplete(() {
+            setState(() {
+              processing = false;
+            });
+          })
+          .then((user) {})
+          .onError((String errorMessage, _) {
+            AppAlerts.error(alertContext: context, errorMessage: errorMessage);
+          });
     }
+  }
+
+  void setNewCodeTimer() {
+    setState(() {
+      resendDurationLeft = 30;
+    });
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (resendDurationLeft == 0) {
+        setState(() {
+          resendDurationLeft = null;
+        });
+        timer.cancel();
+      } else {
+        setState(() {
+          resendDurationLeft = resendDurationLeft! - 1;
+        });
+      }
+    });
   }
 
   @override
@@ -94,23 +146,7 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 if (resendDurationLeft == null) {
-                                  setState(() {
-                                    resendDurationLeft = 60;
-                                  });
-                                  Timer.periodic(const Duration(seconds: 1),
-                                      (timer) {
-                                    if (resendDurationLeft == 0) {
-                                      setState(() {
-                                        resendDurationLeft = null;
-                                      });
-                                      timer.cancel();
-                                    } else {
-                                      setState(() {
-                                        resendDurationLeft =
-                                            resendDurationLeft! - 1;
-                                      });
-                                    }
-                                  });
+                                  triggerPhoneVerification();
                                 }
                               },
                             text:
