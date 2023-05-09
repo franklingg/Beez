@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:ui';
 
 import 'package:beez/constants/app_colors.dart';
@@ -8,6 +10,7 @@ import 'dart:ui' as ui;
 import 'dart:typed_data';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ImagePainter extends CustomPainter {
   final ui.Image image;
@@ -77,4 +80,15 @@ class ImagesUtil {
 
     return MapEntry(event, Uint8List.view(pngBytes!.buffer));
   }
+}
+
+enum MultiImageSource { NETWORK, UPLOAD }
+
+class MultiImage {
+  final MultiImageSource source;
+  final XFile? file;
+  final String? url;
+
+  const MultiImage({required this.source, this.file, this.url})
+      : assert(source == MultiImageSource.NETWORK ? url != null : file != null);
 }

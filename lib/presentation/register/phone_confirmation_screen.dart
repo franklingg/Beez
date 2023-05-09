@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/user_model.dart';
+import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
+import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:beez/presentation/register/otp_inserter_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PhoneConfirmationScreen extends StatefulWidget {
   static const String name = 'phone_confirmation';
@@ -38,7 +41,7 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
       processing = true;
     });
     UserService.sendPhoneVerification(
-        userInfo: widget.userData!,
+        phoneNumber: widget.userData!.phone,
         onError: (error) => AppAlerts.error(
             alertContext: context,
             errorMessage: "Verificação Falhou. Tente novamente."),
@@ -46,8 +49,6 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
           setState(() {
             verificationId = verification;
             resendToken = token;
-          });
-          setState(() {
             processing = false;
           });
           setNewCodeTimer();
@@ -70,16 +71,23 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
       setState(() {
         processing = true;
       });
-      UserService.verifyOtpCode(verificationId, currentCode!)
+      UserService.verifyOtpCode(verificationId, currentCode!, widget.userData!)
           .whenComplete(() {
-            setState(() {
-              processing = false;
-            });
-          })
-          .then((user) {})
-          .onError((String errorMessage, _) {
-            AppAlerts.error(alertContext: context, errorMessage: errorMessage);
-          });
+        setState(() {
+          processing = false;
+        });
+      }).then((user) {
+        AppAlerts.info(
+          alertContext: context,
+          title: "Verificação OTP",
+          infoMessage: "O telefone foi verificado com sucesso!",
+          onCloseAlert: () {
+            GoRouter.of(context).pushNamed(MapScreen.name);
+          },
+        );
+      }).onError((String errorMessage, _) {
+        AppAlerts.error(alertContext: context, errorMessage: errorMessage);
+      });
     }
   }
 

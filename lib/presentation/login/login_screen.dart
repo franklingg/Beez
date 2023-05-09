@@ -3,6 +3,7 @@ import 'package:beez/constants/app_images.dart';
 import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/login/forgot_password_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
+import 'package:beez/presentation/register/phone_confirmation_screen.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/register/registration_screen.dart';
 import 'package:beez/presentation/login/signin_items_widget.dart';
@@ -32,22 +33,32 @@ class _LoginScreenState extends State<LoginScreen> {
   String currentEmail = "";
   String currentPassword = "";
 
-  void submitForm(UserModel? possibleUser) {
+  void submitForm() {
     if (_formKey.currentState!.validate()) {
       setState(() {
         processingForm = true;
       });
       _formKey.currentState!.save();
-      UserService.performNormalLogin(
-              currentEmail, currentPassword, possibleUser)
-          .whenComplete(() => setState(() {
-                processingForm = false;
-              }))
-          .then((user) {
-        GoRouter.of(context).pushNamed(MapScreen.name);
-      }).onError((String errorMsg, _) {
-        AppAlerts.error(alertContext: context, errorMessage: errorMsg);
-      });
+      final possibleUser = Provider.of<UserProvider>(context, listen: false)
+          .findUser(currentEmail);
+      if (possibleUser != null && !possibleUser.verifiedPhone) {
+        setState(() {
+          processingForm = false;
+        });
+        GoRouter.of(context)
+            .pushNamed(PhoneConfirmationScreen.name, extra: possibleUser);
+      } else {
+        UserService.performNormalLogin(
+                currentEmail, currentPassword, possibleUser)
+            .whenComplete(() => setState(() {
+                  processingForm = false;
+                }))
+            .then((user) {
+          GoRouter.of(context).pushNamed(MapScreen.name);
+        }).onError((String errorMsg, _) {
+          AppAlerts.error(alertContext: context, errorMessage: errorMsg);
+        });
+      }
     }
   }
 
@@ -123,20 +134,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineMedium),
                   ),
-                  Consumer<UserProvider>(
-                    builder: (_, userProvider, __) => ElevatedButton(
-                        onPressed: () =>
-                            submitForm(userProvider.findUser(currentEmail)),
-                        style: const ButtonStyle(
-                            padding: MaterialStatePropertyAll(
-                                EdgeInsets.symmetric(vertical: 10)),
-                            backgroundColor:
-                                MaterialStatePropertyAll(AppColors.darkYellow)),
-                        child: const Text(
-                          "Entrar",
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        )),
-                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        submitForm();
+                      },
+                      style: const ButtonStyle(
+                          padding: MaterialStatePropertyAll(
+                              EdgeInsets.symmetric(vertical: 10)),
+                          backgroundColor:
+                              MaterialStatePropertyAll(AppColors.darkYellow)),
+                      child: const Text(
+                        "Entrar",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      )),
                   const SizedBox(height: 20),
                   const Text(
                     "Ou conecte-se com",

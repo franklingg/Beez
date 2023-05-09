@@ -26,7 +26,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     setState(() {
       Provider.of<UserProvider>(context, listen: false).addListener(() {
-        setState(() {});
+        try {
+          setState(() {});
+        } catch (e) {}
       });
     });
   }

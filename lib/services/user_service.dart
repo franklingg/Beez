@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:beez/models/user_model.dart';
+import 'package:beez/services/event_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
@@ -136,17 +137,15 @@ class UserService {
   }
 
   static Future<void> sendPhoneVerification(
-      {required UserModel userInfo,
+      {required String phoneNumber,
       required Function(FirebaseAuthException) onError,
       required Function(String, int?) onSent,
       required Function(String) onTimeout,
       required int? resendToken}) async {
     final auth = FirebaseAuth.instance;
     await auth.verifyPhoneNumber(
-        phoneNumber: userInfo.phone,
-        verificationCompleted: (credential) async {
-          await auth.signInWithCredential(credential);
-        },
+        phoneNumber: phoneNumber,
+        verificationCompleted: (_) {},
         timeout: const Duration(minutes: 2),
         forceResendingToken: resendToken,
         verificationFailed: onError,
@@ -154,23 +153,24 @@ class UserService {
         codeAutoRetrievalTimeout: onTimeout);
   }
 
-  static Future<UserCredential> verifyOtpCode(
-      String verificationId, String otpCode) async {
+  static Future<UserModel> verifyOtpCode(
+      String verificationId, String otpCode, UserModel userData) async {
     try {
-      final phoneCredential = await FirebaseAuth.instance.signInWithCredential(
+      await FirebaseAuth.instance.signInWithCredential(
           PhoneAuthProvider.credential(
               verificationId: verificationId, smsCode: otpCode));
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('@beez/userId', userData.id);
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userData.id)
+          .update({'verifiedPhone': true});
+      return userData;
     } on FirebaseAuthException catch (error) {
       String message = "";
       switch (error.code) {
-        case 'invalid-email':
-          message = "O e-mail inserido é inválido.";
-          break;
-        case 'email-already-in-use':
-          message = "O email inserido já está em uso.";
-          break;
-        case 'weak-password':
-          message = "A senha inserida é fraca demais.";
+        case 'invalid-verification-code':
+          message = "O código inserido está incorreto.";
           break;
         default:
           message = "Erro de Autenticação.";

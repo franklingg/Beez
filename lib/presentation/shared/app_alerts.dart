@@ -70,6 +70,22 @@ class AppAlerts {
     });
   }
 
+  AppAlerts.timePicker(
+      {required this.alertContext,
+      TimeOfDay? initialTime,
+      required Function(TimeOfDay) onChangedTime}) {
+    title = "";
+    showTimePicker(
+            context: alertContext,
+            initialEntryMode: TimePickerEntryMode.input,
+            initialTime: initialTime ?? const TimeOfDay(hour: 0, minute: 0))
+        .then((pickedTime) {
+      if (pickedTime != null) {
+        onChangedTime(pickedTime);
+      }
+    });
+  }
+
   Future showAlert() {
     return showDialog(
         context: alertContext,

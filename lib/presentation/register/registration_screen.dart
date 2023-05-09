@@ -80,7 +80,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         onSaved: (value) => setState(() {
                           currentName = value ?? currentName;
                         }),
-                        initialValue: currentName,
                         decoration:
                             AppField.inputDecoration(hint: "Nome Completo"),
                         validator: (value) => value!.validName(),
@@ -94,7 +93,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         onSaved: (value) => setState(() {
                           currentEmail = value ?? currentEmail;
                         }),
-                        initialValue: currentEmail,
                         decoration: AppField.inputDecoration(
                             hint: "exemplo@exemplo.com"),
                         validator: (value) => value!.validEmail(),
@@ -172,7 +170,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               onSaved: (value) => setState(() {
                                 currentPhone = value ?? currentPhone;
                               }),
-                              initialValue: currentPhone,
                               autocorrect: false,
                               inputFormatters: [
                                 MaskedInputFormatter('(##) #####-####')
@@ -227,7 +224,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   AppField(
                       label: "Confirmação de Senha",
                       child: TextFormField(
-                        initialValue: currentPasswordConfirmation,
                         validator: (value) =>
                             _passwordTextController.text != value
                                 ? "As senhas não conferem."

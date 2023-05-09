@@ -1,4 +1,5 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/carousel_widget.dart';
@@ -7,6 +8,7 @@ import 'package:beez/providers/event_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/event_service.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +27,9 @@ class _EventScreenState extends State<EventScreen> {
     super.initState();
     setState(() {
       Provider.of<EventProvider>(context, listen: false).addListener(() {
-        setState(() {});
+        try {
+          setState(() {});
+        } catch (e) {}
       });
     });
   }
@@ -77,47 +81,75 @@ class _EventScreenState extends State<EventScreen> {
                           ),
                           const SizedBox(height: 7),
                           Row(children: [
-                            GestureDetector(
-                              onTap: () {
-                                if (userProvider.currentUserId == null) {
-                                  AppAlerts.login(alertContext: context);
-                                } else {
-                                  EventService.toggleLikeEvent(
-                                      event, userProvider.currentUserId!);
-                                }
-                              },
-                              child: event.interested
-                                      .contains(userProvider.currentUserId)
-                                  ? Row(
+                            if (event.creator != userProvider.currentUserId)
+                              GestureDetector(
+                                onTap: () {
+                                  if (userProvider.currentUserId == null) {
+                                    AppAlerts.login(alertContext: context);
+                                  } else {
+                                    EventService.toggleLikeEvent(
+                                        event, userProvider.currentUserId!);
+                                  }
+                                },
+                                child: event.interested
+                                        .contains(userProvider.currentUserId)
+                                    ? Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: const [
+                                            Icon(
+                                              Icons.person_pin_circle_rounded,
+                                              size: 30,
+                                              color: AppColors.darkYellow,
+                                            ),
+                                            SizedBox(width: 3),
+                                            Text("Tenho Interesse",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color:
+                                                        AppColors.darkYellow))
+                                          ])
+                                    : Row(children: const [
+                                        Icon(
+                                          Icons.person_pin_circle_outlined,
+                                          size: 30,
+                                          color: AppColors.darkYellow,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Text(
+                                          "Tenho Interesse",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.black),
+                                        )
+                                      ]),
+                              )
+                            else
+                              GestureDetector(
+                                  onTap: () {
+                                    GoRouter.of(context).pushNamed(
+                                        CreateEventScreen.name,
+                                        extra: event);
+                                  },
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: const [
-                                          Icon(
-                                            Icons.person_pin_circle_rounded,
-                                            size: 30,
-                                            color: AppColors.darkYellow,
-                                          ),
-                                          SizedBox(width: 3),
-                                          Text("Tenho Interesse",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppColors.darkYellow))
-                                        ])
-                                  : Row(children: const [
-                                      Icon(
-                                        Icons.person_pin_circle_outlined,
-                                        size: 30,
-                                        color: AppColors.darkYellow,
-                                      ),
-                                      SizedBox(width: 3),
-                                      Text(
-                                        "Tenho Interesse",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors.black),
-                                      )
-                                    ]),
-                            ),
+                                        Icon(
+                                          Icons.edit_square,
+                                          size: 23,
+                                          color: AppColors.brown,
+                                        ),
+                                        SizedBox(width: 7),
+                                        Text(
+                                          "Editar Evento",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.brown),
+                                        )
+                                      ])),
                             Expanded(
                               child: GestureDetector(
                                   onTap: () {
@@ -142,7 +174,7 @@ class _EventScreenState extends State<EventScreen> {
                                               color: AppColors.black),
                                         )
                                       ])),
-                            )
+                            ),
                           ]),
                           const SizedBox(height: 10),
                           Text("Lista de Interessados",

@@ -1,3 +1,4 @@
+import 'package:beez/models/event_model.dart';
 import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/event/event_screen.dart';
@@ -12,9 +13,7 @@ import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: "/${RegistrationScreen.name}",
-    initialExtra:
-        UserModel.initialize('', '', '+55 (83) 98165-9022', DateTime.now()),
+    initialLocation: "/${MapScreen.name}",
     routes: [
       GoRoute(
           path: "/${MapScreen.name}",
@@ -42,7 +41,10 @@ class AppRouter {
       GoRoute(
           path: "/${CreateEventScreen.name}",
           name: CreateEventScreen.name,
-          builder: (context, state) => const CreateEventScreen()),
+          builder: (context, state) {
+            EventModel? eventToEdit = state.extra as EventModel?;
+            return CreateEventScreen(existingEvent: eventToEdit);
+          }),
       GoRoute(
           path: "/${LoginScreen.name}",
           name: LoginScreen.name,

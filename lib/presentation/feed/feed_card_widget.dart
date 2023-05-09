@@ -32,9 +32,13 @@ class FeedCard extends StatelessWidget {
                   onTap: () {
                     if (userProvider.currentUserId == null) {
                       AppAlerts.login(alertContext: context);
-                    } else {
+                    } else if (userProvider.currentUserId != creatorData.id) {
                       UserService.toggleFollowers(
                           creatorData, userProvider.currentUserId!);
+                    } else {
+                      AppAlerts.error(
+                          alertContext: context,
+                          errorMessage: "Não é possível seguir a si mesmo.");
                     }
                   },
                   child: Container(
@@ -93,9 +97,14 @@ class FeedCard extends StatelessWidget {
               onTap: () {
                 if (userProvider.currentUserId == null) {
                   AppAlerts.login(alertContext: context);
-                } else {
+                } else if (data.creator != userProvider.currentUserId) {
                   EventService.toggleLikeEvent(
                       data, userProvider.currentUserId!);
+                } else {
+                  AppAlerts.error(
+                      alertContext: context,
+                      errorMessage:
+                          "Não é possível se interessar pelo seu próprio evento.");
                 }
               },
               child: data.interested.contains(userProvider.currentUserId)
