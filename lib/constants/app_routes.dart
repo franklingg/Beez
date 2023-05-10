@@ -2,10 +2,12 @@ import 'package:beez/models/event_model.dart';
 import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/event/event_screen.dart';
+import 'package:beez/presentation/event/my_events_screen.dart';
 import 'package:beez/presentation/feed/feed_screen.dart';
 import 'package:beez/presentation/login/login_screen.dart';
 import 'package:beez/presentation/login/forgot_password_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
+import 'package:beez/presentation/profile/edit_profile_screen.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:beez/presentation/register/phone_confirmation_screen.dart';
 import 'package:beez/presentation/register/registration_screen.dart';
@@ -34,6 +36,10 @@ class AppRouter {
         },
       ),
       GoRoute(
+          path: "/${EditProfileScreen.name}",
+          name: EditProfileScreen.name,
+          builder: (context, state) => const EditProfileScreen()),
+      GoRoute(
           path: "/${EventScreen.name}",
           name: EventScreen.name,
           builder: (context, state) =>
@@ -45,6 +51,10 @@ class AppRouter {
             EventModel? eventToEdit = state.extra as EventModel?;
             return CreateEventScreen(existingEvent: eventToEdit);
           }),
+      GoRoute(
+          path: "/${MyEventsScreen.name}",
+          name: MyEventsScreen.name,
+          builder: (context, state) => const MyEventsScreen()),
       GoRoute(
           path: "/${LoginScreen.name}",
           name: LoginScreen.name,
@@ -63,7 +73,7 @@ class AppRouter {
           builder: (context, state) {
             UserModel userData = state.extra as UserModel;
             return PhoneConfirmationScreen(userData: userData);
-          })
+          }),
     ],
   );
 }

@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:beez/models/user_model.dart';
-import 'package:beez/services/event_service.dart';
+import 'package:beez/utils/images_util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
@@ -192,5 +195,37 @@ class UserService {
     } catch (e) {
       return Future.error(e);
     }
+  }
+
+  static Future<UserModel> updateUser(UserModel updatedUser) async {
+    try {
+      final db = FirebaseFirestore.instance;
+      await db
+          .collection('users')
+          .doc(updatedUser.id)
+          .update(updatedUser.toMap());
+      return updatedUser;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  static Future<String> uploadUserPhoto(MultiImage? userPhoto) async {
+    final storage = FirebaseStorage.instance.ref('avatar/');
+    String result = '';
+    if (userPhoto != null && userPhoto.source == MultiImageSource.UPLOAD) {
+      final file = File(userPhoto.file!.path);
+      final imageRef = storage.child(
+          "${DateTime.now().millisecondsSinceEpoch.toString()}${extension(file.path)}");
+      try {
+        await imageRef.putFile(file);
+        result = await imageRef.getDownloadURL();
+      } on FirebaseException catch (_) {
+        return Future.error("Erro ao subir foto de perfil");
+      }
+    } else if (userPhoto != null) {
+      result = userPhoto.url!;
+    }
+    return result;
   }
 }

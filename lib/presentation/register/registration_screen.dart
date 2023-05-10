@@ -111,6 +111,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               if (currentBirthDate == null) {
                                 return "Data de Nascimento é obrigatória.";
                               }
+                              return null;
                             },
                             style: const TextStyle(
                                 color: AppColors.brown, fontSize: 14),

@@ -121,7 +121,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         name: currentTitle,
         description: currentDescription,
         interested: [],
-        location: GeoPoint(0, 0),
+        location: const GeoPoint(0, 0),
         address: currentAddress,
         photos: uploadedPhotos,
         tags: currentInterests,
@@ -183,6 +183,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                   if (value == null || value.isEmpty) {
                                     return "Não deve ser vazio";
                                   }
+                                  return null;
                                 },
                                 style: Theme.of(context)
                                     .textTheme
@@ -228,6 +229,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                   if (currentDate == null) {
                                     return "Obrigatório.";
                                   }
+                                  return null;
                                 },
                                 style: const TextStyle(
                                     color: AppColors.brown, fontSize: 14),
@@ -261,6 +263,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                         if (currentTime == null) {
                                           return "Obrigatório.";
                                         }
+                                        return null;
                                       },
                                       style: const TextStyle(
                                           color: AppColors.brown, fontSize: 14),
@@ -301,6 +304,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                   if (currentTime == null) {
                                     return "Obrigatório.";
                                   }
+                                  return null;
                                 },
                                 style: Theme.of(context)
                                     .textTheme

@@ -4,7 +4,6 @@ import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
-import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:beez/presentation/register/otp_inserter_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';

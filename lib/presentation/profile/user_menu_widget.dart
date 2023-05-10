@@ -1,5 +1,7 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/presentation/event/my_events_screen.dart';
 import 'package:beez/presentation/login/login_screen.dart';
+import 'package:beez/presentation/profile/edit_profile_screen.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -35,18 +37,13 @@ class UserMenu extends StatelessWidget {
         color: AppColors.black,
       ),
       items: [
-        menuItemBuilder(
-            context,
-            Icons.calendar_month_outlined,
-            "Meus Eventos",
-            // TODO: NAVIGATE TO MY EVENTS
-            () {}),
-        menuItemBuilder(
-            context,
-            Icons.person_outline,
-            "Edital Perfil",
-            // TODO: NAVIGATE TO PROFILE EDITION
-            () {}),
+        menuItemBuilder(context, Icons.calendar_month_outlined, "Meus Eventos",
+            () {
+          GoRouter.of(context).pushNamed(MyEventsScreen.name);
+        }),
+        menuItemBuilder(context, Icons.person_outline, "Edital Perfil", () {
+          GoRouter.of(context).pushNamed(EditProfileScreen.name);
+        }),
         menuItemBuilder(
             context,
             Icons.share,

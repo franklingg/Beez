@@ -1,6 +1,5 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_images.dart';
-import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/login/forgot_password_screen.dart';
 import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/register/phone_confirmation_screen.dart';

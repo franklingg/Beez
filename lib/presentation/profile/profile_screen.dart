@@ -1,4 +1,5 @@
 import 'package:beez/constants/app_colors.dart';
+import 'package:beez/constants/app_images.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/profile/user_menu_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
@@ -81,8 +82,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: AppColors.brown,
                             radius: 61,
                             child: CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(userData.profilePic),
+                              backgroundImage: userData.profilePic.isNotEmpty
+                                  ? NetworkImage(userData.profilePic)
+                                  : AssetImage(AppImages.placeholderWhite)
+                                      as ImageProvider,
                               radius: 60,
                             ),
                           ),

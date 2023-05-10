@@ -1,18 +1,15 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/constants/app_images.dart';
-import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/login/login_screen.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
-import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   static const String name = 'forgot_password';

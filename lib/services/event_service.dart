@@ -97,8 +97,8 @@ class EventService {
       try {
         await imageRef.putFile(file);
         result.add(await imageRef.getDownloadURL());
-      } on FirebaseException catch (e) {
-        print('here');
+      } on FirebaseException catch (_) {
+        return Future.error("Erro ao subir fotos");
       }
     }
     return result;
