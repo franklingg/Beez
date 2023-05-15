@@ -1,9 +1,18 @@
+import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 
-class DefaultFirebaseOptions {
+enum LinkType {
+  event,
+  user;
+}
+
+class FirebaseService {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -68,4 +77,34 @@ class DefaultFirebaseOptions {
     iosClientId: dotenv.env['FIREBASE_MACOS_IOS_CLIENT_ID']!,
     iosBundleId: dotenv.env['FIREBASE_MACOS_IOS_BUNDLE_ID']!,
   );
+
+  static Future<String> createEventLink(LinkType type, String id) async {
+    final dynamicLinkParams = DynamicLinkParameters(
+        link: Uri.parse("beezapp.page.link/user?id=$id"),
+        uriPrefix: "https://beezapp.page.link/",
+        androidParameters: const AndroidParameters(
+          // TODO: add PlayStore url
+          // fallbackUrl: Uri(path: ""),
+          packageName: "com.example.beez",
+          minimumVersion: 30,
+        ));
+    final link =
+        await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
+    return link.toString();
+  }
+
+  static Future<void> linkListen(BuildContext context) async {
+    FirebaseDynamicLinks.instance.onLink.listen((dynamicLink) {
+      final deepLink = dynamicLink.link;
+      final isUser = deepLink.pathSegments.contains('user');
+      final isEvent = deepLink.pathSegments.contains('event');
+      if (isUser) {
+        String? id = deepLink.queryParameters['id'];
+        if (id != null) {
+          GoRouter.of(context)
+              .pushNamed(ProfileScreen.name, queryParams: {'id': id});
+        }
+      }
+    });
+  }
 }
