@@ -66,6 +66,8 @@ dependencies:
   flutter_google_places_hoc081098: ^1.0.0-nullsafety.1
   google_maps_webservice: ^0.0.20-nullsafety.5
   google_api_headers: ^1.6.0
+  geoflutterfire2: ^2.3.15
+  firebase_dynamic_links: ^5.3.0
 
 dev_dependencies:
   flutter_launcher_icons: "^0.12.0"

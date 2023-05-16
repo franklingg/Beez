@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "575211199642-ih34pqd2pgreep3v8h522bd4en05idmu.apps.googleusercontent.com",
+          "client_id": "575211199642-knleeap1sk7cecf68rvf4f00uomqm9n8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.beez",
+            "certificate_hash": "bc8d5d5bf69b0bad656981e130fd85f5a8597b4c"
+          }
+        },
+        {
+          "client_id": "575211199642-2l0mpjj5jedhbg6f7puh23a0g1dmjn5u.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +35,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "575211199642-ih34pqd2pgreep3v8h522bd4en05idmu.apps.googleusercontent.com",
+              "client_id": "575211199642-2l0mpjj5jedhbg6f7puh23a0g1dmjn5u.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "575211199642-6g9hqhik6a3981ffur1tcv56gkpjlu64.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.beez"
+              }
             }
           ]
         }
