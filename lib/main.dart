@@ -3,10 +3,11 @@ import 'package:beez/constants/app_locales.dart';
 import 'package:beez/constants/app_routes.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/services/event_service.dart';
-import 'package:beez/services/firebase_options.dart';
+import 'package:beez/services/firebase_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 // ignore: depend_on_referenced_packages
@@ -28,7 +29,15 @@ void main() {
 
 Future initialization() async {
   await dotenv.load(fileName: '.env');
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: FirebaseService.currentPlatform);
+  final PendingDynamicLinkData? initialLink =
+      await FirebaseDynamicLinks.instance.getInitialLink();
+
+  // if (initialLink != null) {
+  //   final Uri deepLink = initialLink.link;
+  //   // Example of using the dynamic link to push the user to a different screen
+  //   // Navigator.pushNamed(context, deepLink.path);
+  // }
 }
 
 class MyApp extends StatelessWidget {
@@ -40,15 +49,16 @@ class MyApp extends StatelessWidget {
         providers: [
           FutureProvider<UserProvider>(
               initialData: UserProvider(),
-              create: (context) async {
+              create: (userContext) async {
                 final provider = UserProvider();
                 final initialUsers = await UserService.getUsers();
                 provider.addAll(initialUsers);
+                await FirebaseService.linkListen(userContext);
                 return provider;
               }),
           FutureProvider<EventProvider>(
               initialData: EventProvider(),
-              create: (context) async {
+              create: (eventContext) async {
                 final provider = EventProvider();
                 final initialEvents = await EventService.getEvents();
                 provider.addAll(initialEvents);
