@@ -72,11 +72,18 @@ class FeedCard extends StatelessWidget {
                   children: [
                     ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image(
-                            image: data.photos.isEmpty
-                                ? AssetImage(AppImages.placeholder)
-                                    as ImageProvider
-                                : NetworkImage(data.photos[0]))),
+                        child: Container(
+                          constraints: const BoxConstraints(maxHeight: 250),
+                          child: Center(
+                            heightFactor: 1,
+                            child: Image(
+                                fit: BoxFit.contain,
+                                image: data.photos.isEmpty
+                                    ? AssetImage(AppImages.placeholder)
+                                        as ImageProvider
+                                    : NetworkImage(data.photos[0])),
+                          ),
+                        )),
                     const SizedBox(height: 10),
                     RichText(
                       text: TextSpan(
@@ -178,9 +185,12 @@ class FeedCard extends StatelessWidget {
                                 alignment: AlignmentDirectional.centerStart,
                                 child: CircleAvatar(
                                   radius: 10,
-                                  backgroundImage: NetworkImage(userProvider
-                                      .getUser(data.interested.first)
-                                      .profilePic),
+                                  backgroundImage: userProvider.getProfilePic(
+                                      userId: userProvider.shouldShowEvents(
+                                              userId: data.interested.first)
+                                          ? data.interested.first
+                                          : null,
+                                      yellow: true),
                                 ),
                               ),
                               if (data.interested.length > 1)
@@ -188,9 +198,12 @@ class FeedCard extends StatelessWidget {
                                   alignment: AlignmentDirectional.centerEnd,
                                   child: CircleAvatar(
                                     radius: 10,
-                                    backgroundImage: NetworkImage(userProvider
-                                        .getUser(data.interested[1])
-                                        .profilePic),
+                                    backgroundImage: userProvider.getProfilePic(
+                                        userId: userProvider.shouldShowEvents(
+                                                userId: data.interested[1])
+                                            ? data.interested[1]
+                                            : null,
+                                        yellow: true),
                                   ),
                                 ),
                             ],

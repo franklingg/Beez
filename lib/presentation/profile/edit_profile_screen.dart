@@ -363,7 +363,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 interestFilter:
                                     MultiSelectFilter(title: "Interesses")
                                       ..currentValue = currentUser!.interests,
-                                itemSize: 13,
                                 onChanged: (newTags) {
                                   setState(() {
                                     currentUser = currentUser!.copyWith(
@@ -386,7 +385,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   setState(() {
                                     currentUser = currentUser!.copyWith(
                                         showEventsAll:
-                                            !currentUser!.showEventsAll);
+                                            !currentUser!.showEventsAll,
+                                        showEventsFollowers: !currentUser!
+                                                .showEventsAll
+                                            ? true
+                                            : currentUser!.showEventsFollowers);
                                   });
                                 }),
                             const SizedBox(height: 20),
@@ -394,14 +397,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 boolFilter: BooleanFilter(
                                     title: "",
                                     label:
-                                        "Mostrar eventos de meu interesse para quem me segue")
-                                  ..currentValue = currentUser!.showEventsAll,
+                                        "Mostrar eventos de meu interesse para quem eu sigo")
+                                  ..currentValue =
+                                      currentUser!.showEventsFollowers,
                                 labelSize: 13,
                                 onChanged: () {
                                   setState(() {
                                     currentUser = currentUser!.copyWith(
                                         showEventsAll:
-                                            !currentUser!.showEventsAll);
+                                            currentUser!.showEventsFollowers
+                                                ? false
+                                                : currentUser!.showEventsAll,
+                                        showEventsFollowers:
+                                            !currentUser!.showEventsFollowers);
                                   });
                                 }),
                             const SizedBox(height: 20),

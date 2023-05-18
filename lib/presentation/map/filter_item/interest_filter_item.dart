@@ -8,13 +8,9 @@ import 'package:multi_select_flutter/multi_select_flutter.dart';
 class InterestFilterItem extends StatelessWidget {
   final MultiSelectFilter interestFilter;
   final Function(List<String>) onChanged;
-  final double? itemSize;
 
   const InterestFilterItem(
-      {super.key,
-      required this.interestFilter,
-      required this.onChanged,
-      this.itemSize});
+      {super.key, required this.interestFilter, required this.onChanged});
 
   Future openInterestsSheet(
       BuildContext context, MultiSelectFilter interestFilter) async {
@@ -76,7 +72,7 @@ class InterestFilterItem extends StatelessWidget {
                   child: MultiSelectChipDisplay(
                 scroll: true,
                 height: 35,
-                textStyle: TextStyle(fontSize: itemSize),
+                textStyle: const TextStyle(fontSize: 13),
                 items: interestFilter.currentValue
                     .map((t) => MultiSelectItem(t, t))
                     .toList(),

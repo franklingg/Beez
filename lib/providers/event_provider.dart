@@ -7,7 +7,8 @@ class EventProvider extends ChangeNotifier {
 
   EventProvider() {
     EventService.subscribeToEvents((changedEvent) {
-      int eventIndex = allEvents.indexWhere((event) => event == changedEvent);
+      int eventIndex =
+          allEvents.indexWhere((event) => event.id == changedEvent.id);
       // If new event
       if (eventIndex == -1) {
         allEvents.add(changedEvent);

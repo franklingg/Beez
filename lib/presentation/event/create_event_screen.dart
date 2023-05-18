@@ -15,7 +15,11 @@ import 'package:beez/services/event_service.dart';
 import 'package:beez/utils/images_util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_api_headers/google_api_headers.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
@@ -33,13 +37,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   bool processingForm = false;
   List<MultiImage?> currentPhotos = List.filled(4, null, growable: false);
   String currentTitle = "";
   String currentDescription = "";
   DateTime? currentDate;
   TimeOfDay? currentTime;
-  String currentAddress = "";
+  PlaceDetails? currentAddress;
   bool isFree = false;
   List<String> currentInterests = [];
 
@@ -53,7 +58,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         currentDate = widget.existingEvent!.date.toDate();
         currentTime =
             TimeOfDay.fromDateTime(widget.existingEvent!.date.toDate());
-        currentAddress = widget.existingEvent!.address;
         isFree = widget.existingEvent!.isFree;
         currentInterests = widget.existingEvent!.tags;
         widget.existingEvent!.photos.forEachIndexed((idx, photoUrl) {
@@ -68,6 +72,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final formatter = NumberFormat("00");
     _timeController.text = currentTime != null
         ? "${formatter.format(currentTime!.hour)}:${formatter.format(currentTime!.minute)}"
+        : '';
+    _addressController.text = widget.existingEvent?.address != null
+        ? widget.existingEvent!.address
         : '';
   }
 
@@ -100,7 +107,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         .add(Duration(hours: currentTime!.hour, minutes: currentTime!.minute));
     final updatedEvent = widget.existingEvent!.copyWith(
         date: Timestamp.fromDate(fullDate),
-        address: currentAddress,
+        address: currentAddress!.formattedAddress!,
+        location: GeoPoint(currentAddress!.geometry!.location.lat,
+            currentAddress!.geometry!.location.lng),
         description: currentDescription,
         isFree: isFree,
         name: currentTitle,
@@ -121,8 +130,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         name: currentTitle,
         description: currentDescription,
         interested: [],
-        location: const GeoPoint(0, 0),
-        address: currentAddress,
+        location: GeoPoint(currentAddress!.geometry!.location.lat,
+            currentAddress!.geometry!.location.lng),
+        address: currentAddress!.formattedAddress!,
         photos: uploadedPhotos,
         tags: currentInterests,
         isFree: isFree);
@@ -293,24 +303,58 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           const SizedBox(height: 10),
                           AppField(
                             label: "Endereço",
-                            child: TextFormField(
-                                onSaved: (value) => setState(() {
-                                      currentAddress = value ?? currentAddress;
-                                    }),
+                            child: GestureDetector(
+                              onTap: () async {
+                                var place = await PlacesAutocomplete.show(
+                                    context: context,
+                                    apiKey: dotenv.env['GOOGLE_MAPS_API_KEY']!,
+                                    mode: Mode.overlay,
+                                    types: [],
+                                    strictbounds: false,
+                                    language: 'pt-BR',
+                                    components: [
+                                      Component(Component.country, 'br')
+                                    ],
+                                    onError: (err) {
+                                      AppAlerts.error(
+                                          alertContext: context,
+                                          errorMessage: err.toString());
+                                    });
+
+                                if (place != null) {
+                                  final plist = GoogleMapsPlaces(
+                                    apiKey: dotenv.env['GOOGLE_MAPS_API_KEY']!,
+                                    apiHeaders: await const GoogleApiHeaders()
+                                        .getHeaders(),
+                                  );
+                                  String placeid = place.placeId ?? "0";
+                                  final detail =
+                                      await plist.getDetailsByPlaceId(placeid,
+                                          language: 'pt-BR');
+                                  setState(() {
+                                    currentAddress = detail.result;
+                                    _addressController.text =
+                                        currentAddress!.formattedAddress!;
+                                  });
+                                }
+                              },
+                              child: TextFormField(
+                                controller: _addressController,
+                                enabled: false,
                                 decoration: AppField.inputDecoration(
-                                    hint: "Endereço do evento"),
-                                initialValue: currentAddress,
+                                    hint: "Rua Tal, 00"),
                                 validator: (value) {
-                                  if (currentTime == null) {
+                                  if (currentAddress == null ||
+                                      widget.existingEvent?.address != null) {
                                     return "Obrigatório.";
                                   }
                                   return null;
                                 },
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .merge(const TextStyle(
-                                        decoration: TextDecoration.none))),
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal),
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 10),
                           const Text("Gratuidade"),
@@ -334,7 +378,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                               interestFilter:
                                   MultiSelectFilter(title: "Interesses")
                                     ..currentValue = currentInterests,
-                              itemSize: 13,
                               onChanged: (newTags) {
                                 setState(() {
                                   currentInterests =

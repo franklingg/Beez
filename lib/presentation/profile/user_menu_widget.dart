@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class UserMenu extends StatelessWidget {
-  const UserMenu({super.key});
+  final void Function() onLogout;
+  const UserMenu({super.key, required this.onLogout});
 
   DropdownMenuItem<Function> menuItemBuilder(
       BuildContext context, IconData icon, String text, Function function) {
@@ -50,10 +51,7 @@ class UserMenu extends StatelessWidget {
             "Compartilhar Perfil",
             // TODO: SHARE DEEP LINK
             () {}),
-        menuItemBuilder(context, Icons.logout, "Sair", () {
-          UserService.performLogout();
-          GoRouter.of(context).pushReplacementNamed(LoginScreen.name);
-        }),
+        menuItemBuilder(context, Icons.logout, "Sair", onLogout),
       ],
       onChanged: (valueFunction) {
         if (valueFunction != null) valueFunction();

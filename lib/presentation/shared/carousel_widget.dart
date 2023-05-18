@@ -46,7 +46,7 @@ class _CarouselState extends State<Carousel> {
                     borderRadius: BorderRadius.circular(4)),
                 height: 200,
                 child: Image(
-                  fit: BoxFit.fill,
+                  fit: BoxFit.contain,
                   image: url.isEmpty
                       ? AssetImage(AppImages.placeholderWhite) as ImageProvider
                       : NetworkImage(url),

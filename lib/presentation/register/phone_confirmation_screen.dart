@@ -7,6 +7,7 @@ import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/register/otp_inserter_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
+import 'package:beez/services/auth_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
     setState(() {
       processing = true;
     });
-    UserService.sendPhoneVerification(
+    AuthService.sendPhoneVerification(
         phoneNumber: widget.userData!.phone,
         onError: (error) => AppAlerts.error(
             alertContext: context,
@@ -70,7 +71,7 @@ class _PhoneConfirmationScreenState extends State<PhoneConfirmationScreen> {
       setState(() {
         processing = true;
       });
-      UserService.verifyOtpCode(verificationId, currentCode!, widget.userData!)
+      AuthService.verifyOtpCode(verificationId, currentCode!, widget.userData!)
           .whenComplete(() {
         setState(() {
           processing = false;

@@ -14,6 +14,7 @@ class AppField extends StatelessWidget {
             height: 0.5, fontSize: 14, color: AppColors.mediumGrey),
         border: InputBorder.none,
         hintText: hint,
+        errorStyle: const TextStyle(color: AppColors.error),
         errorMaxLines: 2,
         errorBorder: const UnderlineInputBorder(
             borderSide: BorderSide(width: 1, color: AppColors.grey)),

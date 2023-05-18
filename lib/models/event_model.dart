@@ -80,11 +80,27 @@ class EventModel {
         name: map['name'] ?? '',
         description: map['description'] ?? '',
         interested: List<String>.from(map['interested']),
-        location: map['location'],
+        location: map['location'] ?? const GeoPoint(0, 0),
         address: map['address'] ?? '',
         photos: List<String>.from(map['photos']),
         tags: List<String>.from(map['tags']),
         isFree: map['isFree'] ?? true);
+  }
+
+  factory EventModel.initialize(String creator, Timestamp date, String name,
+      String description, String address) {
+    return EventModel(
+        id: 'not_set',
+        creator: creator,
+        date: date,
+        name: name,
+        description: description,
+        interested: [],
+        location: const GeoPoint(0, 0),
+        address: address,
+        photos: [],
+        tags: [],
+        isFree: false);
   }
 
   String toJson() => json.encode(toMap());

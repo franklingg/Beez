@@ -11,6 +11,29 @@ extension AppDateExtension on DateTime {
   DateTime getDateOnly() {
     return DateTime(year, month, day);
   }
+
+  DateTime startOfMonth() {
+    return DateTime(year, month);
+  }
+
+  DateTime endOfMonth() {
+    return DateTime(year, month + 1).subtract(const Duration(microseconds: 1));
+  }
+}
+
+extension ListSplitter<T> on List<T> {
+  List<List<T>> split(bool Function(T) condition) {
+    List<T> selected = [];
+    List<T> unselected = [];
+    for (T el in this) {
+      if (condition(el)) {
+        selected.add(el);
+      } else {
+        unselected.add(el);
+      }
+    }
+    return [selected, unselected];
+  }
 }
 
 extension FormValidations on String {

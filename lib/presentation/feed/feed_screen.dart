@@ -47,7 +47,7 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   List<EventModel> reorderEvents(
-      List<EventModel> events, List<String> followers) {
+      List<EventModel> events, List<String> following) {
     List<EventModel> reorderedEvents = [...events];
     if (order == OrderOption.NEAREST_DISTANT ||
         order == OrderOption.FARTHEST_DISTANT) {
@@ -57,7 +57,7 @@ class _FeedScreenState extends State<FeedScreen> {
               e2.location.latitude,
               e2.location.longitude)
           .toInt());
-      if (order == OrderOption.FARTHEST_DISTANT) {
+      if (order == OrderOption.NEAREST_DISTANT) {
         reorderedEvents = [...reorderedEvents.reversed];
       }
     } else if (order == OrderOption.CLOSEST_DATE ||
@@ -69,10 +69,12 @@ class _FeedScreenState extends State<FeedScreen> {
     } else if (order == OrderOption.LESS_COMMON_FOLLOWERS ||
         order == OrderOption.MORE_COMMON_FOLLOWERS) {
       reorderedEvents.sort((e1, e2) =>
-          e1.interested.toSet().difference(followers.toSet()).length -
-          e2.interested.toSet().difference(followers.toSet()).length);
-      if (order == OrderOption.LESS_COMMON_FOLLOWERS) {
-        reorderedEvents = [...reorderedEvents.reversed];
+          following.toSet().intersection(e1.interested.toSet()).length -
+          following.toSet().intersection(e2.interested.toSet()).length);
+      if (order == OrderOption.MORE_COMMON_FOLLOWERS) {
+        reorderedEvents.sort((e1, e2) =>
+            following.toSet().intersection(e2.interested.toSet()).length -
+            following.toSet().intersection(e1.interested.toSet()).length);
       }
     }
     return reorderedEvents;
@@ -100,9 +102,11 @@ class _FeedScreenState extends State<FeedScreen> {
                       Consumer<EventProvider>(builder: (_, eventProvider, __) {
                         List<String> userFollowers =
                             userProvider.currentUserId != null
-                                ? userProvider
-                                    .getUser(userProvider.currentUserId!)
-                                    .followers
+                                ? userProvider.allUsers
+                                    .where((user) => user.followers
+                                        .contains(userProvider.currentUserId))
+                                    .map((user) => user.id)
+                                    .toList()
                                 : [];
                         final shownEvents = reorderEvents(
                             eventProvider.nextEvents, userFollowers);
@@ -110,9 +114,6 @@ class _FeedScreenState extends State<FeedScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 8),
                             itemCount: shownEvents.length,
-                            prototypeItem: shownEvents.isNotEmpty
-                                ? FeedCard(data: shownEvents.first)
-                                : null,
                             itemBuilder: ((context, index) {
                               final eventData = shownEvents[index];
                               double? distanceUserEvent;

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/presentation/event/create_event_screen.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
@@ -31,6 +29,7 @@ class _EventScreenState extends State<EventScreen> {
       Provider.of<EventProvider>(context, listen: false).addListener(() {
         try {
           setState(() {});
+          // ignore: empty_catches
         } catch (e) {}
       });
     });
@@ -44,6 +43,10 @@ class _EventScreenState extends State<EventScreen> {
           body: Consumer<EventProvider>(
             builder: (_, eventProvider, __) {
               final event = eventProvider.getEvent(widget.id!);
+              final interestedToShow = event.interested
+                  .map((i) => userProvider.getUser(i))
+                  .where(
+                      (user) => userProvider.shouldShowEvents(userId: user.id));
               return SingleChildScrollView(
                 child: Column(children: [
                   Carousel(isMultipleEvent: false, singleEvent: event),
@@ -195,14 +198,14 @@ class _EventScreenState extends State<EventScreen> {
                                   crossAxisSpacing: 10,
                                   crossAxisCount: 2,
                                 ),
-                                itemCount: event.interested.length,
+                                itemCount: interestedToShow.length,
                                 itemBuilder: (context, index) {
                                   return Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         ProfileItem(
-                                            user: userProvider.getUser(
-                                                event.interested[index]))
+                                            user: interestedToShow
+                                                .elementAt(index))
                                       ]);
                                 })
                           ]))

@@ -4,6 +4,7 @@ import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
+import 'package:beez/services/auth_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:country_code_picker/country_code_picker.dart';
@@ -45,7 +46,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _formKey.currentState!.save();
       final userData = UserModel.initialize(currentName, currentEmail,
           "${currentCountryCode.dialCode} $currentPhone", currentBirthDate!);
-      UserService.registerNewUser(userData, currentPassword).whenComplete(() {
+      AuthService.registerNewUser(
+              method: SignInMethod.EMAIL,
+              newUserData: userData,
+              password: currentPassword)
+          .whenComplete(() {
         setState(() {
           processingForm = false;
         });

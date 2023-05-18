@@ -85,6 +85,7 @@ class AppMarker {
                     Row(
                         children: event.tags.take(3).map((tag) {
                       return Container(
+                        margin: const EdgeInsets.only(right: 2),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(

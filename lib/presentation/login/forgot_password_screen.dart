@@ -5,7 +5,7 @@ import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
-import 'package:beez/services/user_service.dart';
+import 'package:beez/services/auth_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,7 +30,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         processingForm = true;
       });
       _formKey.currentState!.save();
-      UserService.sendPasswordRecovery(currentEmail)
+      AuthService.sendPasswordRecovery(currentEmail)
           .whenComplete(() => setState(() {
                 processingForm = false;
               }))

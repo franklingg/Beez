@@ -22,17 +22,55 @@ class MyEventsScreen extends StatefulWidget {
 
 class _MyEventsScreenState extends State<MyEventsScreen> {
   List<EventModel> shownEvents = [];
-  DateTime selectedDay = DateTime.now();
+  DateTime? selectedDay;
+  DateTime focusedDay = DateTime.now().startOfMonth();
+  int? highlightIndex;
   @override
   void initState() {
     super.initState();
     final eventProvider = Provider.of<EventProvider>(context, listen: false);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    // FIXME: delete
+    // final mockEvents = List<EventModel>.generate(
+    //     11,
+    //     (index) => EventModel.initialize(
+    //         '',
+    //         Timestamp.fromDate(
+    //             DateTime(2023, 04, 26).add(Duration(days: index * 4))),
+    //         "Evento $index",
+    //         '',
+    //         ''));
+
     setState(() {
       shownEvents.addAll(eventProvider.allEvents
           .where((event) => event.creator == userProvider.currentUserId));
       shownEvents.addAll(eventProvider.allEvents.where(
           (event) => event.interested.contains(userProvider.currentUserId)));
+      // FIXME: delete
+      // shownEvents.addAll(mockEvents);
+      shownEvents.sort((e1, e2) => e1.date.compareTo(e2.date));
+      reorderEvents();
+    });
+  }
+
+  void reorderEvents() {
+    final List<List<EventModel>> result;
+    if (selectedDay != null) {
+      result = shownEvents.split((event) =>
+          (event.date.toDate().getDateOnly() == selectedDay!.getDateOnly()));
+    } else {
+      shownEvents.sort((e1, e2) => e1.date.compareTo(e2.date));
+      result = shownEvents.split((event) =>
+          (event.date.toDate().isAfter(focusedDay.startOfMonth()) ||
+              event.date
+                  .toDate()
+                  .isAtSameMomentAs(focusedDay.startOfMonth())) &&
+          (event.date.toDate().isBefore(focusedDay.endOfMonth()) ||
+              event.date.toDate().isAtSameMomentAs(focusedDay.endOfMonth())));
+    }
+    setState(() {
+      highlightIndex = result[0].isNotEmpty ? result[0].length - 1 : null;
+      shownEvents = [...result[0], ...result[1]];
     });
   }
 
@@ -58,6 +96,13 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                             startingDayOfWeek: StartingDayOfWeek.monday,
                             availableCalendarFormats: const {
                               CalendarFormat.month: 'Month',
+                            },
+                            onPageChanged: (newFocusedDay) {
+                              setState(() {
+                                focusedDay = newFocusedDay;
+                                selectedDay = null;
+                              });
+                              reorderEvents();
                             },
                             holidayPredicate: (day) => shownEvents.any(
                                 (event) =>
@@ -110,12 +155,14 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                                 }),
                             firstDay: DateTime(2010),
                             lastDay: DateTime(2030),
-                            focusedDay: DateTime.now(),
+                            focusedDay: focusedDay,
                             weekNumbersVisible: false,
                             onDaySelected: (pickedDay, focusedDay) {
                               setState(() {
-                                selectedDay = pickedDay;
+                                selectedDay =
+                                    pickedDay == selectedDay ? null : pickedDay;
                               });
+                              reorderEvents();
                             },
                             calendarBuilders: CalendarBuilders(
                               defaultBuilder: (context, day, focusedDay) {
@@ -160,7 +207,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                                 todayDecoration: BoxDecoration(
                                   border: Border.all(
                                       color: AppColors.yellow,
-                                      width: selectedDay.getDateOnly() ==
+                                      width: selectedDay?.getDateOnly() ==
                                               DateTime.now().getDateOnly()
                                           ? 2
                                           : 1),
@@ -168,7 +215,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                                 ),
                                 todayTextStyle: TextStyle(
                                     color: AppColors.brown,
-                                    fontSize: selectedDay.getDateOnly() ==
+                                    fontSize: selectedDay?.getDateOnly() ==
                                             DateTime.now().getDateOnly()
                                         ? 18
                                         : 15)),
@@ -222,32 +269,43 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                                           'id': shownEvents[index].id
                                         });
                                   },
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 7),
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            color: isUserEvent
-                                                ? AppColors.blue
-                                                : AppColors.yellow),
-                                        child: Text(
-                                          DateFormat("dd/MM").format(
-                                              shownEvents[index].date.toDate()),
-                                          style: TextStyle(
-                                              fontSize: 15,
+                                  child: Container(
+                                    decoration: index == highlightIndex
+                                        ? const BoxDecoration(
+                                            border: Border(
+                                                bottom: BorderSide(
+                                                    color: AppColors.shadow)))
+                                        : null,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 7),
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                               color: isUserEvent
-                                                  ? AppColors.white
-                                                  : AppColors.black),
+                                                  ? AppColors.blue
+                                                  : AppColors.yellow),
+                                          child: Text(
+                                            DateFormat("dd/MM").format(
+                                                shownEvents[index]
+                                                    .date
+                                                    .toDate()),
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: isUserEvent
+                                                    ? AppColors.white
+                                                    : AppColors.black),
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(shownEvents[index].name,
-                                          style: const TextStyle(fontSize: 16))
-                                    ],
+                                        const SizedBox(width: 10),
+                                        Text(shownEvents[index].name,
+                                            style:
+                                                const TextStyle(fontSize: 16))
+                                      ],
+                                    ),
                                   ),
                                 );
                               }),

@@ -1,3 +1,4 @@
+import 'package:beez/constants/app_images.dart';
 import 'package:beez/models/user_model.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ class UserProvider extends ChangeNotifier {
 
   UserProvider() {
     UserService.subscribeToUsers(firestoreAction: (changedUser) {
-      int userIndex = _allUsers.indexWhere((user) => user == changedUser);
+      int userIndex = _allUsers.indexWhere((user) => user.id == changedUser.id);
       // If new user
       if (userIndex == -1) {
         _allUsers.add(changedUser);
@@ -43,5 +44,26 @@ class UserProvider extends ChangeNotifier {
   UserModel? findUser(String email) {
     final userIdx = _allUsers.indexWhere((user) => user.email == email);
     return (userIdx != -1 ? _allUsers[userIdx] : null);
+  }
+
+  bool shouldShowEvents({String? userId}) {
+    if (userId != null) {
+      final user = getUser(userId);
+      final currentUserFollowers =
+          currentUserId != null ? getUser(currentUserId!).followers : [];
+      return user.id == currentUserId ||
+          user.showEventsAll ||
+          (user.showEventsFollowers && currentUserFollowers.contains(user.id));
+    }
+    return false;
+  }
+
+  ImageProvider getProfilePic({String? userId, bool yellow = false}) {
+    UserModel? user = userId != null ? getUser(userId) : null;
+    return user != null && user.profilePic.isNotEmpty
+        ? NetworkImage(user.profilePic)
+        : AssetImage(
+                yellow ? AppImages.placeholder : AppImages.placeholderWhite)
+            as ImageProvider;
   }
 }

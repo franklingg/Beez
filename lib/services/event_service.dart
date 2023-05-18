@@ -13,7 +13,8 @@ class EventService {
     try {
       final db = FirebaseFirestore.instance;
       final query = await db.collection('events').get();
-      final events = query.docs.map((doc) => EventModel.fromMap(doc)).toList();
+      final events =
+          query.docs.map((doc) => EventModel.fromMap(doc)).toList();
       return events;
     } catch (e) {
       return Future.error(e);
@@ -46,7 +47,7 @@ class EventService {
     try {
       final db = FirebaseFirestore.instance;
       final docRef = await db.collection('events').add(newEvent.toMap());
-      return newEvent.copyWith(id: docRef.id);
+      return updateEvent(newEvent.copyWith(id: docRef.id));
     } catch (e) {
       return Future.error(e.toString());
     }

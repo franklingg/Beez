@@ -1,7 +1,9 @@
 import 'package:beez/models/user_model.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
+import 'package:beez/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class ProfileItem extends StatelessWidget {
   final UserModel user;
@@ -10,6 +12,7 @@ class ProfileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<UserProvider>(context, listen: false);
     return GestureDetector(
       onTap: () {
         GoRouter.of(context)
@@ -18,7 +21,9 @@ class ProfileItem extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-              radius: iconSize, backgroundImage: NetworkImage(user.profilePic)),
+              radius: iconSize,
+              backgroundImage:
+                  provider.getProfilePic(userId: user.id, yellow: true)),
           const SizedBox(width: 15),
           Expanded(
               child: Text(

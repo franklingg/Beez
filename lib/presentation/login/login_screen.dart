@@ -10,7 +10,7 @@ import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/providers/user_provider.dart';
-import 'package:beez/services/user_service.dart';
+import 'package:beez/services/auth_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -47,8 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
         GoRouter.of(context)
             .pushNamed(PhoneConfirmationScreen.name, extra: possibleUser);
       } else {
-        UserService.performNormalLogin(
-                currentEmail, currentPassword, possibleUser)
+        AuthService.performLogin(
+                context: context,
+                method: SignInMethod.EMAIL,
+                email: currentEmail,
+                password: currentPassword)
             .whenComplete(() => setState(() {
                   processingForm = false;
                 }))

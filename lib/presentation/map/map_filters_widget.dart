@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/filter_map_model.dart';
 import 'package:beez/presentation/map/filter_item/bool_filter_item.dart';
@@ -5,9 +7,9 @@ import 'package:beez/presentation/map/filter_item/date_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/distance_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/filter_item.dart';
 import 'package:beez/presentation/map/filter_item/interest_filter_item.dart';
-import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapFilters extends StatefulWidget {
   final Map<String, FilterMap> userFilters;
@@ -20,46 +22,37 @@ class MapFilters extends StatefulWidget {
     "interest": MultiSelectFilter(title: "Interesses")
   };
   final ValueChanged<Map<String, FilterMap>> onSave;
+  final LatLng userLocation;
 
-  MapFilters({super.key, required this.userFilters, required this.onSave});
+  MapFilters(
+      {super.key,
+      required this.userFilters,
+      required this.onSave,
+      required this.userLocation});
 
   @override
   State<MapFilters> createState() => _MapFiltersState();
 }
 
 class _MapFiltersState extends State<MapFilters> {
-  late Map<String, FilterMap> currentFilters;
+  Map<String, FilterMap> currentFilters = {};
 
   @override
   void initState() {
     super.initState();
-    currentFilters = {...widget.defaultFilters, ...widget.userFilters};
-    loadDistanceFilter();
-  }
-
-  Future loadDistanceFilter({bool useUserFilter = true}) {
-    if (useUserFilter && widget.userFilters.containsKey('distance')) {
-      currentFilters['distance'] = widget.userFilters['distance']!;
-      return Future.value();
-    } else {
-      return UserService.getUserCurrentLocation().then((userLocation) {
-        setState(() {
-          currentFilters['distance'] =
-              RangeFilter(title: "Distância", currentPosition: userLocation);
-        });
-      }).catchError((onError) {
-        setState(() {
-          currentFilters['distance'] = RangeFilter(title: "Distância");
-        });
-      });
-    }
+    currentFilters.addAll(widget.defaultFilters
+        .map((key, filter) => MapEntry(key, filter.copy())));
+    currentFilters.addAll(
+        widget.userFilters.map((key, filter) => MapEntry(key, filter.copy())));
   }
 
   void resetFilters() {
     setState(() {
-      currentFilters = {...widget.defaultFilters};
+      currentFilters["distance"] =
+          (currentFilters['distance'] as RangeFilter).reset();
+      currentFilters.addAll(widget.defaultFilters
+          .map((key, filter) => MapEntry(key, filter.reset())));
     });
-    loadDistanceFilter(useUserFilter: false);
   }
 
   @override
@@ -83,7 +76,9 @@ class _MapFiltersState extends State<MapFilters> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => GoRouter.of(context).pop(),
+                    onTap: () {
+                      GoRouter.of(context).pop();
+                    },
                     child: const Icon(Icons.close_rounded,
                         size: 28, color: AppColors.mediumGrey),
                   )

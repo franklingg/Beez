@@ -53,17 +53,18 @@ class EventPhotos extends StatelessWidget {
                           ),
                         )
                       : Stack(children: [
-                          image.source == MultiImageSource.NETWORK
-                              ? Image.network(
-                                  image.url!,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.file(
-                                  File(image.file!.path),
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                ),
+                          Container(
+                            constraints: const BoxConstraints.expand(),
+                            child: image.source == MultiImageSource.NETWORK
+                                ? Image.network(
+                                    image.url!,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.file(
+                                    File(image.file!.path),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                           Align(
                             alignment: Alignment.center,
                             child: GestureDetector(
