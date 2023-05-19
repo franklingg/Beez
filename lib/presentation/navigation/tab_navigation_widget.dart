@@ -5,7 +5,6 @@ import 'package:beez/presentation/map/map_screen.dart';
 import 'package:beez/presentation/navigation/navigation_item_widget.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:beez/providers/user_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';

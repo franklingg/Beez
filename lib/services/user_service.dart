@@ -79,9 +79,8 @@ class UserService {
     }
   }
 
-  // TODO: phone changed action
   static Future<UserModel> updateUser(
-      UserModel updatedUser, String? password, bool phoneChanged) async {
+      UserModel updatedUser, String? password) async {
     try {
       final db = FirebaseFirestore.instance;
       await db

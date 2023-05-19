@@ -8,11 +8,13 @@ import 'package:beez/presentation/map/filter_item/bool_filter_item.dart';
 import 'package:beez/presentation/map/filter_item/interest_filter_item.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
+import 'package:beez/presentation/register/phone_confirmation_screen.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/presentation/shared/top_bar_widget.dart';
 import 'package:beez/providers/user_provider.dart';
+import 'package:beez/services/auth_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:beez/utils/images_util.dart';
@@ -68,19 +70,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
       _formKey.currentState!.save();
       UserService.uploadUserPhoto(currentPhoto).then((photoUrl) async {
+        final phoneChanged = currentUser!.phone != originalPhone;
         setState(() {
-          currentUser = currentUser!.copyWith(profilePic: photoUrl);
+          currentUser = currentUser!.copyWith(
+              profilePic: photoUrl,
+              verifiedPhone: phoneChanged ? false : currentUser!.verifiedPhone);
         });
 
-        return UserService.updateUser(
-            currentUser!, currentPassword, currentUser!.phone != originalPhone);
+        final updatedUser =
+            await UserService.updateUser(currentUser!, currentPassword);
+        if (!updatedUser.verifiedPhone) {
+          await AuthService.performLogout();
+        }
+        return updatedUser;
       }).whenComplete(() {
         setState(() {
           processingForm = false;
         });
       }).then((updatedUser) {
-        GoRouter.of(context)
-            .pushNamed(ProfileScreen.name, queryParams: {'id': updatedUser.id});
+        if (updatedUser.verifiedPhone) {
+          GoRouter.of(context).pushNamed(ProfileScreen.name,
+              queryParams: {'id': updatedUser.id});
+        } else {
+          GoRouter.of(context).pushReplacementNamed(
+              PhoneConfirmationScreen.name,
+              extra: updatedUser);
+        }
       }).onError((String errorMsg, _) {
         AppAlerts.error(alertContext: context, errorMessage: errorMsg);
       });

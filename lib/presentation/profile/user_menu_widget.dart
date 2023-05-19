@@ -1,8 +1,6 @@
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/presentation/event/my_events_screen.dart';
-import 'package:beez/presentation/login/login_screen.dart';
 import 'package:beez/presentation/profile/edit_profile_screen.dart';
-import 'package:beez/services/user_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

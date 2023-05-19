@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:beez/constants/app_colors.dart';
 import 'package:beez/models/filter_map_model.dart';
 import 'package:beez/presentation/map/filter_item/bool_filter_item.dart';

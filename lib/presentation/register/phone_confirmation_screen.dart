@@ -8,7 +8,6 @@ import 'package:beez/presentation/register/otp_inserter_widget.dart';
 import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/services/auth_service.dart';
-import 'package:beez/services/user_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

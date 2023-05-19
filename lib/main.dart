@@ -4,6 +4,7 @@ import 'package:beez/constants/app_routes.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/services/event_service.dart';
 import 'package:beez/services/firebase_service.dart';
+import 'package:beez/services/notification_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:country_code_picker/country_code_picker.dart';
@@ -30,6 +31,7 @@ void main() {
 Future initialization() async {
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: FirebaseService.currentPlatform);
+  await NotificationService.initialize();
   final PendingDynamicLinkData? initialLink =
       await FirebaseDynamicLinks.instance.getInitialLink();
 
@@ -53,7 +55,7 @@ class MyApp extends StatelessWidget {
                 final provider = UserProvider();
                 final initialUsers = await UserService.getUsers();
                 provider.addAll(initialUsers);
-                await FirebaseService.linkListen(userContext);
+                // await FirebaseService.linkListen(userContext);
                 return provider;
               }),
           FutureProvider<EventProvider>(
