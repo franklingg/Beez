@@ -38,15 +38,18 @@ class _CarouselState extends State<Carousel> {
           enableInfiniteScroll: false,
           padEnds: false,
           viewportFraction: 1),
-      items: photoUrls
+      items: (photoUrls.isEmpty ? [''] : photoUrls)
           .take(10)
-          .map((url) => SizedBox(
+          .map((url) => Container(
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(4)),
                 height: 200,
                 child: Image(
                   fit: BoxFit.fill,
                   image: url.isEmpty
-                      ? AssetImage(AppImages.placeholder)
-                      : NetworkImage(url) as ImageProvider,
+                      ? AssetImage(AppImages.placeholderWhite) as ImageProvider
+                      : NetworkImage(url),
                 ),
               ))
           .toList(),
@@ -93,7 +96,8 @@ class _CarouselState extends State<Carousel> {
           child: Stack(
             children: [
               carousel(widget.multipleEvents!
-                  .map((event) => event.photos.first)
+                  .map(
+                      (event) => event.photos.isEmpty ? '' : event.photos.first)
                   .toList()),
               Align(
                 alignment: Alignment.bottomCenter,
