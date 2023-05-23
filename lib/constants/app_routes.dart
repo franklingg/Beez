@@ -14,7 +14,7 @@ import 'package:beez/presentation/register/registration_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
-  static final GoRouter router = GoRouter(
+  static GoRouter router = GoRouter(
     initialLocation: "/${MapScreen.name}",
     routes: [
       GoRoute(
@@ -32,7 +32,9 @@ class AppRouter {
         // ignore: body_might_complete_normally_nullable
         redirect: (context, state) {
           if (state.queryParams['id'] == null ||
-              state.queryParams['id']!.isEmpty) return "/${LoginScreen.name}";
+              state.queryParams['id']!.isEmpty) {
+            return "/${LoginScreen.name}";
+          }
         },
       ),
       GoRoute(

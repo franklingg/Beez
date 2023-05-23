@@ -8,7 +8,8 @@ import 'package:beez/services/notification_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 // ignore: depend_on_referenced_packages
@@ -21,25 +22,21 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
+  FirebaseMessaging.onBackgroundMessage(handleBackgroundMessaging);
   initialization().then((_) {
     runApp(const MyApp());
     FlutterNativeSplash.remove();
   });
 }
 
+Future<void> handleBackgroundMessaging(RemoteMessage message) async {
+  // await NotificationService.persistNotification(message);
+}
+
 Future initialization() async {
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: FirebaseService.currentPlatform);
   await NotificationService.initialize();
-  final PendingDynamicLinkData? initialLink =
-      await FirebaseDynamicLinks.instance.getInitialLink();
-
-  // if (initialLink != null) {
-  //   final Uri deepLink = initialLink.link;
-  //   // Example of using the dynamic link to push the user to a different screen
-  //   // Navigator.pushNamed(context, deepLink.path);
-  // }
 }
 
 class MyApp extends StatelessWidget {
@@ -67,46 +64,50 @@ class MyApp extends StatelessWidget {
                 return provider;
               })
         ],
-        child: MaterialApp.router(
-            localizationsDelegates: const [
-              CountryLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate
-            ],
-            supportedLocales: AppLocales.all,
-            locale: AppLocales.defaultLocale,
-            theme: ThemeData(
-              primaryColor: AppColors.yellow,
-              textTheme: GoogleFonts.notoSansTextTheme(const TextTheme(
-                  headlineLarge: TextStyle(fontSize: 17, color: AppColors.blue),
-                  headlineMedium:
-                      TextStyle(fontSize: 14, color: AppColors.blue),
-                  displayMedium:
-                      TextStyle(fontSize: 16, color: AppColors.black),
-                  displaySmall: TextStyle(fontSize: 13, color: AppColors.brown),
-                  bodyLarge: TextStyle(fontSize: 18, color: AppColors.black),
-                  bodyMedium: TextStyle(fontSize: 15, color: AppColors.black),
-                  bodySmall: TextStyle(fontSize: 13, color: AppColors.black),
-                  titleLarge: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.black),
-                  titleMedium: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black),
-                  titleSmall: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white),
-                  labelMedium:
-                      TextStyle(fontSize: 16, color: AppColors.mediumGrey),
-                  labelSmall: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.black,
-                      letterSpacing: 0.6))),
-            ),
-            title: "Beez",
-            routerConfig: AppRouter.router));
+        builder: (ctx, _) {
+          return MaterialApp.router(
+              localizationsDelegates: const [
+                CountryLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate
+              ],
+              supportedLocales: AppLocales.all,
+              locale: AppLocales.defaultLocale,
+              theme: ThemeData(
+                primaryColor: AppColors.yellow,
+                textTheme: GoogleFonts.notoSansTextTheme(const TextTheme(
+                    headlineLarge:
+                        TextStyle(fontSize: 17, color: AppColors.blue),
+                    headlineMedium:
+                        TextStyle(fontSize: 14, color: AppColors.blue),
+                    displayMedium:
+                        TextStyle(fontSize: 16, color: AppColors.black),
+                    displaySmall:
+                        TextStyle(fontSize: 13, color: AppColors.brown),
+                    bodyLarge: TextStyle(fontSize: 18, color: AppColors.black),
+                    bodyMedium: TextStyle(fontSize: 15, color: AppColors.black),
+                    bodySmall: TextStyle(fontSize: 13, color: AppColors.black),
+                    titleLarge: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.black),
+                    titleMedium: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.black),
+                    titleSmall: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white),
+                    labelMedium:
+                        TextStyle(fontSize: 16, color: AppColors.mediumGrey),
+                    labelSmall: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.black,
+                        letterSpacing: 0.6))),
+              ),
+              title: "Beez",
+              routerConfig: AppRouter.router);
+        });
   }
 }
