@@ -8,8 +8,8 @@ import 'package:beez/services/notification_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 // ignore: depend_on_referenced_packages
@@ -23,24 +23,28 @@ void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   FirebaseMessaging.onBackgroundMessage(handleBackgroundMessaging);
-  initialization().then((_) {
-    runApp(const MyApp());
+  initialization().then((initialRedirect) {
+    runApp(MyApp(fromNotification: initialRedirect));
     FlutterNativeSplash.remove();
   });
 }
 
 Future<void> handleBackgroundMessaging(RemoteMessage message) async {
-  // await NotificationService.persistNotification(message);
+  await NotificationService.persistNotification(message);
 }
 
-Future initialization() async {
+Future<String?> initialization() async {
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: FirebaseService.currentPlatform);
   await NotificationService.initialize();
+  await FirebaseDynamicLinks.instance.getInitialLink();
+  return await NotificationService.getNotificationId();
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final String? fromNotification;
+
+  const MyApp({Key? key, this.fromNotification}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +56,6 @@ class MyApp extends StatelessWidget {
                 final provider = UserProvider();
                 final initialUsers = await UserService.getUsers();
                 provider.addAll(initialUsers);
-                // await FirebaseService.linkListen(userContext);
                 return provider;
               }),
           FutureProvider<EventProvider>(
@@ -65,6 +68,7 @@ class MyApp extends StatelessWidget {
               })
         ],
         builder: (ctx, _) {
+          FirebaseService.linkListen(context);
           return MaterialApp.router(
               localizationsDelegates: const [
                 CountryLocalizations.delegate,
