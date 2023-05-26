@@ -7,6 +7,7 @@ import 'package:beez/presentation/shared/profile_item_widget.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/event_service.dart';
+import 'package:beez/utils/links_util.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -159,9 +160,7 @@ class _EventScreenState extends State<EventScreen> {
                                         ])),
                               Expanded(
                                 child: GestureDetector(
-                                    onTap: () {
-                                      // TODO: DEEP LINK SHARE
-                                    },
+                                    onTap: () => LinksUtil.shareEvent(event),
                                     child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,

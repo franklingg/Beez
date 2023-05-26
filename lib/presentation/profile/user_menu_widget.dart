@@ -7,7 +7,8 @@ import 'package:go_router/go_router.dart';
 
 class UserMenu extends StatelessWidget {
   final void Function() onLogout;
-  const UserMenu({super.key, required this.onLogout});
+  final void Function() onShare;
+  const UserMenu({super.key, required this.onLogout, required this.onShare});
 
   DropdownMenuItem<Function> menuItemBuilder(
       BuildContext context, IconData icon, String text, Function function) {
@@ -43,12 +44,7 @@ class UserMenu extends StatelessWidget {
         menuItemBuilder(context, Icons.person_outline, "Edital Perfil", () {
           GoRouter.of(context).pushNamed(EditProfileScreen.name);
         }),
-        menuItemBuilder(
-            context,
-            Icons.share,
-            "Compartilhar Perfil",
-            // TODO: SHARE DEEP LINK
-            () {}),
+        menuItemBuilder(context, Icons.share, "Compartilhar Perfil", onShare),
         menuItemBuilder(context, Icons.logout, "Sair", onLogout),
       ],
       onChanged: (valueFunction) {

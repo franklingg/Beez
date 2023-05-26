@@ -1,3 +1,4 @@
+import 'package:beez/presentation/event/event_screen.dart';
 import 'package:beez/presentation/profile/profile_screen.dart';
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -6,11 +7,6 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-
-enum LinkType {
-  event,
-  user;
-}
 
 class FirebaseService {
   static FirebaseOptions get currentPlatform {
@@ -78,19 +74,21 @@ class FirebaseService {
     iosBundleId: dotenv.env['FIREBASE_MACOS_IOS_BUNDLE_ID']!,
   );
 
-  static Future<String> createEventLink(LinkType type, String id) async {
+  static Future<ShortDynamicLink> createLink(
+      String parsedLink, SocialMetaTagParameters socialParams) async {
     final dynamicLinkParams = DynamicLinkParameters(
-        link: Uri.parse("beezapp.page.link/user?id=$id"),
-        uriPrefix: "https://beezapp.page.link/",
-        androidParameters: const AndroidParameters(
-          // TODO: add PlayStore url
-          // fallbackUrl: Uri(path: ""),
+        link: Uri.parse(parsedLink),
+        uriPrefix: "https://beezapp.page.link",
+        androidParameters: AndroidParameters(
+          // TODO: Change to beez play store url
+          fallbackUrl: Uri.parse(
+              "https://play.google.com/store/apps/details?id=com.scopely.monopolygo&hl=pt_BR&gl=US"),
           packageName: "com.example.beez",
-          minimumVersion: 30,
-        ));
+        ),
+        socialMetaTagParameters: socialParams);
     final link =
-        await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
-    return link.toString();
+        await FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams);
+    return link;
   }
 
   static Future<void> linkListen(BuildContext context) async {
@@ -98,11 +96,12 @@ class FirebaseService {
       final deepLink = dynamicLink.link;
       final isUser = deepLink.pathSegments.contains('user');
       final isEvent = deepLink.pathSegments.contains('event');
-      if (isUser) {
+      if (isUser || isEvent) {
         String? id = deepLink.queryParameters['id'];
         if (id != null) {
-          GoRouter.of(context)
-              .pushNamed(ProfileScreen.name, queryParams: {'id': id});
+          GoRouter.of(context).pushNamed(
+              isUser ? ProfileScreen.name : EventScreen.name,
+              queryParams: {'id': id});
         }
       }
     });

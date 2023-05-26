@@ -9,9 +9,9 @@ import 'package:beez/presentation/shared/carousel_widget.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/auth_service.dart';
-import 'package:beez/services/firebase_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
+import 'package:beez/utils/links_util.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -99,7 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const Icon(Icons.arrow_back_outlined, size: 25),
                           ),
                           if (userProvider.currentUserId == widget.id)
-                            UserMenu(onLogout: handleLogout)
+                            UserMenu(
+                                onLogout: handleLogout,
+                                onShare: () => LinksUtil.shareUser(userData))
                         ],
                       ),
                       Padding(
@@ -217,13 +219,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               backgroundColor:
                                                   MaterialStatePropertyAll(
                                                       AppColors.white)),
-                                          //TODO: SHARE DEEP LINK
-                                          onPressed: () async {
-                                            final link = await FirebaseService
-                                                .createEventLink(
-                                                    LinkType.user, userData.id);
-                                            print(link);
-                                          },
+                                          onPressed: () =>
+                                              LinksUtil.shareUser(userData),
                                           child: const Icon(
                                             Icons.share,
                                             size: 22,

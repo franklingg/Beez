@@ -5,7 +5,6 @@ import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/services/auth_service.dart';
-import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/extensions.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
