@@ -9,6 +9,7 @@ import 'package:beez/services/event_service.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/links_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +102,10 @@ class FeedCard extends StatelessWidget {
                           ]),
                     ),
                     const SizedBox(height: 7),
-                    Text(data.description,
+                    Linkify(
+                        text: data.description,
+                        options: const LinkifyOptions(
+                            humanize: true, removeWww: true),
                         style: Theme.of(context).textTheme.labelSmall),
                   ])),
           const SizedBox(height: 7),
@@ -170,7 +174,9 @@ class FeedCard extends StatelessWidget {
                     alertContext: context,
                     title: "Interessados",
                     userList: data.interested
-                        .map((uid) => userProvider.getUser(uid))
+                        .map((i) => userProvider.getUser(i))
+                        .where((user) =>
+                            userProvider.shouldShowEvents(userId: user.id))
                         .toList());
               },
               child: Row(

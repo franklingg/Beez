@@ -9,9 +9,11 @@ import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/event_service.dart';
 import 'package:beez/utils/links_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EventScreen extends StatefulWidget {
   static const String name = 'event';
@@ -78,8 +80,11 @@ class _EventScreenState extends State<EventScreen> {
                                   ]),
                             ),
                             const SizedBox(height: 7),
-                            Text(
-                              event.description,
+                            Linkify(
+                              text: event.description,
+                              onOpen: (link) => launchUrl(Uri.parse(link.url)),
+                              options: const LinkifyOptions(
+                                  humanize: true, removeWww: true),
                               style: Theme.of(context).textTheme.displayMedium,
                             ),
                             const SizedBox(height: 7),
