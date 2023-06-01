@@ -9,7 +9,6 @@ import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 // ignore: depend_on_referenced_packages
@@ -22,15 +21,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  FirebaseMessaging.onBackgroundMessage(handleBackgroundMessaging);
   initialization().then((initialRedirect) {
     runApp(MyApp(fromNotification: initialRedirect));
     FlutterNativeSplash.remove();
   });
-}
-
-Future<void> handleBackgroundMessaging(RemoteMessage message) async {
-  await NotificationService.persistNotification(message);
 }
 
 Future<String?> initialization() async {
@@ -38,7 +32,6 @@ Future<String?> initialization() async {
   await Firebase.initializeApp(options: FirebaseService.currentPlatform);
   await NotificationService.initialize();
   await FirebaseDynamicLinks.instance.getInitialLink();
-  return await NotificationService.getNotificationId();
 }
 
 class MyApp extends StatelessWidget {
