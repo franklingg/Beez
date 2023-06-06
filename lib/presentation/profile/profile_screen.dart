@@ -15,6 +15,7 @@ import 'package:beez/utils/links_util.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:beez/providers/notification_provider.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 
 class ProfileScreen extends StatefulWidget {

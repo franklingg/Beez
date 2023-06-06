@@ -4,7 +4,7 @@ import 'package:beez/constants/app_routes.dart';
 import 'package:beez/providers/event_provider.dart';
 import 'package:beez/services/event_service.dart';
 import 'package:beez/services/firebase_service.dart';
-import 'package:beez/services/notification_service.dart';
+import 'package:beez/providers/notification_provider.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:country_code_picker/country_code_picker.dart';
@@ -14,30 +14,33 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/standalone.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   initialization().then((initialRedirect) {
-    runApp(MyApp(fromNotification: initialRedirect));
+    runApp(const MyApp());
     FlutterNativeSplash.remove();
   });
 }
 
-Future<String?> initialization() async {
+Future<void> initialization() async {
+  tz.initializeTimeZones();
+  tz.setLocalLocation(getLocation(await FlutterTimezone.getLocalTimezone()));
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: FirebaseService.currentPlatform);
-  await NotificationService.initialize();
   await FirebaseDynamicLinks.instance.getInitialLink();
 }
 
 class MyApp extends StatelessWidget {
-  final String? fromNotification;
-
-  const MyApp({Key? key, this.fromNotification}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +61,13 @@ class MyApp extends StatelessWidget {
                 final initialEvents = await EventService.getEvents();
                 provider.addAll(initialEvents);
                 return provider;
-              })
+              }),
+          ListenableProvider<NotificationProvider>(
+              create: (_) => NotificationProvider()),
         ],
         builder: (ctx, _) {
           FirebaseService.linkListen(context);
+          Provider.of<NotificationProvider>(ctx, listen: false).start(context);
           return MaterialApp.router(
               localizationsDelegates: const [
                 CountryLocalizations.delegate,

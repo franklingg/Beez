@@ -9,6 +9,7 @@ import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/presentation/shared/top_bar_widget.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/providers/event_provider.dart';
+import 'package:beez/providers/notification_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -100,6 +101,9 @@ class _FeedScreenState extends State<FeedScreen> {
                   body: Stack(
                     children: [
                       Consumer<EventProvider>(builder: (_, eventProvider, __) {
+                        Provider.of<NotificationProvider>(context,
+                                listen: false)
+                            .debug(eventProvider.nextEvents[0]);
                         List<String> userFollowers =
                             userProvider.currentUserId != null
                                 ? userProvider.allUsers

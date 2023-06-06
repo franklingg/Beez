@@ -1,6 +1,7 @@
-// ignore_for_file: constant_identifier_names
+// ignore_for_file: constant_identifier_names, use_build_context_synchronously
 
 import 'package:beez/models/user_model.dart';
+import 'package:beez/providers/notification_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,9 +26,6 @@ class AuthService {
       String? email,
       String? password}) async {
     try {
-      assert(method == SignInMethod.EMAIL
-          ? email != null && password != null
-          : true);
       final auth = FirebaseAuth.instance;
       late UserCredential credential;
       late UserModel? userData;
@@ -62,7 +60,6 @@ class AuthService {
             await registerNewUser(method: method, credential: credential);
         await auth.signInWithCredential(credential.credential!);
       } else {
-        // ignore: use_build_context_synchronously
         userData = Provider.of<UserProvider>(context, listen: false)
             .findUser(credential.user!.email!);
       }
@@ -73,19 +70,15 @@ class AuthService {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('@beez/userId', userData.id);
       return userData;
-    } on AssertionError catch (_) {
-      return Future.error("É necessário informar e-mail e senha.");
     } on FirebaseAuthException catch (error) {
       String message = "";
       switch (error.code) {
         case 'invalid-email':
-          message = "O e-mail inserido é inválido.";
+        case 'wrong-password':
+          message = "E-mail ou senha inválidos.";
           break;
         case 'user-not-found':
           message = "Este usuário não existe.";
-          break;
-        case 'wrong-password':
-          message = "A senha inserida é inválida.";
           break;
         default:
           message = "Não foi possível fazer login dessa forma.";

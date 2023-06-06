@@ -9,6 +9,8 @@ import 'package:beez/presentation/login/signin_items_widget.dart';
 import 'package:beez/presentation/navigation/tab_navigation_widget.dart';
 import 'package:beez/presentation/shared/app_field_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
+import 'package:beez/providers/event_provider.dart';
+import 'package:beez/providers/notification_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/auth_service.dart';
 import 'package:beez/utils/extensions.dart';
@@ -52,14 +54,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 method: SignInMethod.EMAIL,
                 email: currentEmail,
                 password: currentPassword)
+            .then((user) {
+              return Provider.of<NotificationProvider>(context, listen: false)
+                  .subscribeNotifications(
+                      user.id,
+                      Provider.of<EventProvider>(context, listen: false)
+                          .nextEvents);
+            })
             .whenComplete(() => setState(() {
                   processingForm = false;
                 }))
-            .then((user) {
-          GoRouter.of(context).pushNamed(MapScreen.name);
-        }).onError((String errorMsg, _) {
-          AppAlerts.error(alertContext: context, errorMessage: errorMsg);
-        });
+            .then((_) {
+              GoRouter.of(context).pushNamed(MapScreen.name);
+            })
+            .onError((String errorMsg, _) {
+              AppAlerts.error(alertContext: context, errorMessage: errorMsg);
+            });
       }
     }
   }
