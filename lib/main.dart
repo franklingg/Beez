@@ -67,7 +67,6 @@ class MyApp extends StatelessWidget {
         ],
         builder: (ctx, _) {
           FirebaseService.linkListen(context);
-          Provider.of<NotificationProvider>(ctx, listen: false).start(context);
           return MaterialApp.router(
               localizationsDelegates: const [
                 CountryLocalizations.delegate,
