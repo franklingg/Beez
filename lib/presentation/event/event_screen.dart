@@ -5,6 +5,7 @@ import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/carousel_widget.dart';
 import 'package:beez/presentation/shared/profile_item_widget.dart';
 import 'package:beez/providers/event_provider.dart';
+import 'package:beez/providers/notification_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/event_service.dart';
 import 'package:beez/utils/links_util.dart';
@@ -102,6 +103,11 @@ class _EventScreenState extends State<EventScreen> {
                                     } else {
                                       EventService.toggleLikeEvent(
                                           event, userProvider.currentUserId!);
+                                      Provider.of<NotificationProvider>(context,
+                                              listen: false)
+                                          .subscribeNotifications(
+                                              userProvider.currentUserId,
+                                              eventProvider.nextEvents);
                                     }
                                   },
                                   child: event.interested
