@@ -18,7 +18,7 @@ class NotificationProvider extends ChangeNotifier {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestPermission();
     settings = const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'));
+        android: AndroidInitializationSettings('ic_launcher'));
   }
 
   void start(BuildContext context) {
@@ -38,8 +38,14 @@ class NotificationProvider extends ChangeNotifier {
             .subtract(const Duration(hours: 12)),
         NotificationDetails(
             android: AndroidNotificationDetails(
-                dotenv.env['NOTIFICATION_CHANNEL_ID']!, '@BEEZ/EVENTS_TEST',
+                dotenv.env['NOTIFICATION_CHANNEL_ID']!, '@BEEZ/EVENTS',
                 playSound: false,
+                category: AndroidNotificationCategory.event,
+                channelShowBadge: true,
+                color: AppColors.darkYellow,
+                visibility: NotificationVisibility.public,
+                fullScreenIntent: true,
+                styleInformation: const BigTextStyleInformation(''),
                 channelDescription:
                     'Canal de notificações para eventos do Beez')),
         payload: event.id,
@@ -60,12 +66,13 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
+  // TODO: DELETE
   Future<void> debug(EventModel event) async {
     await plugin.zonedSchedule(
         DateTime.now().hashCode,
         'Evento Próximo!',
         "Beez aqui para te lembrar que ${event.name} acontecerá em 12h, tudo pronto? Bora lá!",
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 10)),
         NotificationDetails(
             android: AndroidNotificationDetails(
                 dotenv.env['NOTIFICATION_CHANNEL_ID']!, '@BEEZ/EVENTS_TEST',
@@ -75,6 +82,7 @@ class NotificationProvider extends ChangeNotifier {
                 color: AppColors.darkYellow,
                 visibility: NotificationVisibility.public,
                 fullScreenIntent: true,
+                styleInformation: const BigTextStyleInformation(''),
                 channelDescription:
                     'Canal de notificações para eventos do Beez')),
         payload: event.id,
