@@ -20,7 +20,6 @@ class SignInItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // AuthService.performLogout();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Row(
