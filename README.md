@@ -13,4 +13,9 @@ O conceito principal da aplicação é de uma Colmeia (por isso os tons amarelos
 
 ## Arquitetura
 
-O sistema foi projetado usando um Serverless Backend com Firebase. Dessa forma, podemos implementar features de Realtime Database e evitando que um backend a parte tenha de ser construído, já que as tarefas que necessitam de persistência são básicas.
+O sistema foi projetado usando um Serverless Backend com Firebase. Dessa forma, podemos implementar features de Realtime Database e evitando que um backend a parte tenha de ser construído, já que as tarefas que necessitam de persistência são básicas. Desse serviço, utilizou-se de quatro ferramentas:
+
+ * Firestore. Útil para armazenar informações de eventos e usuários (utiliza um banco de dados não-relacional, com JSON).
+ * Authentication. Serviço que cadastra usuários com diversos métodos de login (e-mail, Facebook, Google, Twitter, telefone).
+ * Storage. Permite armazenar dados multimídia de maneira leve e de rápida leitura.
+ * Deep Links. Gerencia a criação e redirecionamento de usuários de qualquer lugar da web para a aplicação através de DeepLinks.
