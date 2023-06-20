@@ -25,7 +25,8 @@ class UserService {
   static Future<Position> getUserCurrentLocation() async {
     try {
       await Geolocator.requestPermission();
-      final location = await Geolocator.getCurrentPosition();
+      final location = await Geolocator.getCurrentPosition(
+          timeLimit: const Duration(seconds: 5));
       return location;
     } catch (e) {
       return Future.error(e);
