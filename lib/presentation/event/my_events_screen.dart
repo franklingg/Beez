@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class MyEventsScreen extends StatefulWidget {
@@ -30,13 +31,13 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
     super.initState();
     final eventProvider = Provider.of<EventProvider>(context, listen: false);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    // FIXME: delete
+    // TODO: TEST
     // final mockEvents = List<EventModel>.generate(
     //     11,
     //     (index) => EventModel.initialize(
     //         '',
     //         Timestamp.fromDate(
-    //             DateTime(2023, 04, 26).add(Duration(days: index * 4))),
+    //             DateTime(2023, 06, 27).add(Duration(days: index * 4))),
     //         "Evento $index",
     //         '',
     //         ''));
@@ -46,7 +47,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
           .where((event) => event.creator == userProvider.currentUserId));
       shownEvents.addAll(eventProvider.allEvents.where(
           (event) => event.interested.contains(userProvider.currentUserId)));
-      // FIXME: delete
+      // TODO: TEST
       // shownEvents.addAll(mockEvents);
       shownEvents.sort((e1, e2) => e1.date.compareTo(e2.date));
       reorderEvents();
@@ -117,9 +118,6 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                                   return DateFormat.MMMM(locale)
                                       .format(date)
                                       .toCapitalized();
-                                  // return DateFormat("MMMM/y", locale)
-                                  //     .format(date)
-                                  //     .toCapitalized();
                                 },
                                 leftChevronIcon: Container(
                                   height: 32,
