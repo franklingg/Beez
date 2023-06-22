@@ -62,7 +62,6 @@ class ImagesUtil {
       textDirection: TextDirection.ltr,
     );
 
-    // tp.layout();
     tp.layout(maxWidth: 150);
     ip.paint(c, tp.size);
     tp.paint(
