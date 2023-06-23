@@ -33,6 +33,9 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void initState() {
     super.initState();
+    // TODO: Test
+    // Provider.of<NotificationProvider>(context, listen: false).debug(
+    //     Provider.of<EventProvider>(context, listen: false).nextEvents[0]);
     UserService.getUserCurrentLocation().then((location) {
       setState(() {
         Provider.of<EventProvider>(context, listen: false).addListener(() {
@@ -101,9 +104,6 @@ class _FeedScreenState extends State<FeedScreen> {
                   body: Stack(
                     children: [
                       Consumer<EventProvider>(builder: (_, eventProvider, __) {
-                        Provider.of<NotificationProvider>(context,
-                                listen: false)
-                            .debug(eventProvider.nextEvents[0]);
                         List<String> userFollowers =
                             userProvider.currentUserId != null
                                 ? userProvider.allUsers
