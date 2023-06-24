@@ -10,6 +10,7 @@ import 'package:beez/presentation/shared/app_alerts.dart';
 import 'package:beez/presentation/shared/hexagon_widget.dart';
 import 'package:beez/presentation/shared/loading_widget.dart';
 import 'package:beez/providers/event_provider.dart';
+import 'package:beez/providers/notification_provider.dart';
 import 'package:beez/providers/user_provider.dart';
 import 'package:beez/services/user_service.dart';
 import 'package:beez/utils/images_util.dart';
@@ -47,6 +48,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    Provider.of<NotificationProvider>(context, listen: false).start(context);
     UserService.getUserCurrentLocation()
         .then((currentLocation) {
           setState(() {
@@ -56,7 +58,7 @@ class _MapScreenState extends State<MapScreen> {
                 LatLng(currentLocation.latitude, currentLocation.longitude);
           });
         })
-        .catchError((e) {})
+        .onError((_, __) {})
         .whenComplete(() async {
           final userProvider =
               Provider.of<UserProvider>(context, listen: false);
