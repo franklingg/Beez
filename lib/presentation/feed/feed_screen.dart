@@ -34,8 +34,8 @@ class _FeedScreenState extends State<FeedScreen> {
   void initState() {
     super.initState();
     // TODO: Test
-    // Provider.of<NotificationProvider>(context, listen: false).debug(
-    //     Provider.of<EventProvider>(context, listen: false).nextEvents[0]);
+    Provider.of<NotificationProvider>(context, listen: false).debug(
+        Provider.of<EventProvider>(context, listen: false).nextEvents[0]);
     UserService.getUserCurrentLocation().then((location) {
       setState(() {
         Provider.of<EventProvider>(context, listen: false).addListener(() {
