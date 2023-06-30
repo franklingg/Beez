@@ -32,15 +32,15 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
     final eventProvider = Provider.of<EventProvider>(context, listen: false);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     // TODO: TEST
-    // final mockEvents = List<EventModel>.generate(
-    //     11,
-    //     (index) => EventModel.initialize(
-    //         '',
-    //         Timestamp.fromDate(
-    //             DateTime(2023, 06, 27).add(Duration(days: index * 4))),
-    //         "Evento $index",
-    //         '',
-    //         ''));
+    final mockEvents = List<EventModel>.generate(
+        11,
+        (index) => EventModel.initialize(
+            '',
+            Timestamp.fromDate(
+                DateTime(2023, 06, 27).add(Duration(days: index * 4))),
+            "Evento $index",
+            '',
+            ''));
 
     setState(() {
       shownEvents.addAll(eventProvider.allEvents
@@ -48,7 +48,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
       shownEvents.addAll(eventProvider.allEvents.where(
           (event) => event.interested.contains(userProvider.currentUserId)));
       // TODO: TEST
-      // shownEvents.addAll(mockEvents);
+      shownEvents.addAll(mockEvents);
       shownEvents.sort((e1, e2) => e1.date.compareTo(e2.date));
       reorderEvents();
     });
