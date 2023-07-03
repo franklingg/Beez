@@ -79,23 +79,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         final updatedUser =
             await UserService.updateUser(currentUser!, currentPassword);
-        if (!updatedUser.verifiedPhone) {
-          await AuthService.performLogout();
-        }
+        // FIXME: Uncomment
+        // if (!updatedUser.verifiedPhone) {
+        //   await AuthService.performLogout();
+        // }
         return updatedUser;
       }).whenComplete(() {
         setState(() {
           processingForm = false;
         });
       }).then((updatedUser) {
-        if (updatedUser.verifiedPhone) {
-          GoRouter.of(context).pushNamed(ProfileScreen.name,
-              queryParams: {'id': updatedUser.id});
-        } else {
-          GoRouter.of(context).pushReplacementNamed(
-              PhoneConfirmationScreen.name,
-              extra: updatedUser);
-        }
+        // if (updatedUser.verifiedPhone) {
+        GoRouter.of(context)
+            .pushNamed(ProfileScreen.name, queryParams: {'id': updatedUser.id});
+        // } else {
+        //   GoRouter.of(context).pushReplacementNamed(
+        //       PhoneConfirmationScreen.name,
+        //       extra: updatedUser);
+        // }
       }).onError((String errorMsg, _) {
         AppAlerts.error(alertContext: context, errorMessage: errorMsg);
       });
@@ -303,8 +304,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     ),
                                     Expanded(
                                       child: TextFormField(
-                                        initialValue:
-                                            currentUser!.phone.substring(4),
+                                        initialValue: currentUser!.phone != ''
+                                            ? currentUser!.phone.substring(4)
+                                            : '',
                                         onSaved: (value) {
                                           setState(() {
                                             if (value != null) {
