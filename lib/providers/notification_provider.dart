@@ -72,7 +72,7 @@ class NotificationProvider extends ChangeNotifier {
         DateTime.now().hashCode,
         'Evento Próximo!',
         "Beez aqui para te lembrar que ${event.name} acontecerá em 12h, tudo pronto? Bora lá!",
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 10)),
+        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
         NotificationDetails(
             android: AndroidNotificationDetails(
                 dotenv.env['NOTIFICATION_CHANNEL_ID']!, '@BEEZ/EVENTS_TEST',
